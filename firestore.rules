@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Base rule - deny by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Specific rules for the games collection
+    match /artifacts/{appId}/public/data/games/{gameId} {
+      // Allow anyone to read the list of games or a specific game.
+      allow read: if true;
+
+      // Allow creating new games if the user is authenticated.
+      allow create: if request.auth != null && request.resource.data.player1Id == request.auth.uid;
+
+      // Allow updates under specific conditions.
+      allow update: if request.auth != null && (
+        // Case 1: A new player is joining a 'waiting' game.
+        (resource.data.status == 'waiting' &&
+         resource.data.player1Id != request.auth.uid &&
+         request.resource.data.player2Id == request.auth.uid) ||
+
+        // Case 2: Player 1 updating their ready status
+        (resource.data.player1Id == request.auth.uid && 
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['player1Ready', 'lastActivity'])) ||
+
+        // Case 3: Player 2 updating their ready status
+        (resource.data.player2Id == request.auth.uid && 
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['player2Ready', 'lastActivity'])) ||
+
+        // Case 4: The host (player1) has full update rights
+        (resource.data.player1Id == request.auth.uid) ||
+
+        // Case 5: Player 2 updating their paddle position only
+        (resource.data.player2Id == request.auth.uid && 
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['paddle2', 'lastActivity']))
+      );
+
+      // Allow deletion only by the game's creator (player1).
+      allow delete: if request.auth != null && resource.data.player1Id == request.auth.uid;
+    }
+  }
+}

@@ -1,6 +1,6 @@
 // We don't need to import Phaser again since we extend PongSinglePlayerScene
 import { PongSinglePlayerScene } from "./PongSinglePlayerScene";
-import { PADDLE_SPEED, CANVAS_WIDTH, CANVAS_HEIGHT, MAX_SCORE } from "../lib/constants";
+import { PADDLE_SPEED } from "../lib/constants";
 import { BallState, PaddleState, GameStatus } from "../lib/constants";
 import { Firestore } from "firebase/firestore";
 import { doc, updateDoc, onSnapshot } from "firebase/firestore";
@@ -125,9 +125,7 @@ export class PongMultiPlayerScene extends PongSinglePlayerScene {
     } catch (error) {
       console.error("Error in MultiPlayer scene initialization:", error);
     }
-  }
-
-  update(time: number, delta: number): void {
+  }  update(time: number, delta: number): void {
     if (!this.gameDataInitialized) {
       return; // Don't run update until scene is ready
     }
@@ -147,7 +145,7 @@ export class PongMultiPlayerScene extends PongSinglePlayerScene {
       // Only run game logic if both players are ready
       if (this.player1Ready && this.player2Ready) {
         // Hide the ready text once the game starts
-        if (this.readyText && this.readyText.visible) {
+        if (this.readyText.visible) {
           this.readyText.setVisible(false);
           this.setMessage(""); // Clear any waiting messages
         }
@@ -158,41 +156,68 @@ export class PongMultiPlayerScene extends PongSinglePlayerScene {
           this.ball.setData("isStarted", true);
         }
 
-        // Important: Run our own game logic without calling super.update()
-        // This completely avoids triggering the AI logic in the parent class
-        if (this.gameStarted && !this.gameOver) {
-          // Handle wall collisions (top and bottom)
-          this.handleWallCollisions();
+        // Set game as running but DON'T call super.update() to avoid AI logic
+        // Instead, run our own game logic that excludes AI
+        this.gameStarted = true; // Ensure game is running
+        
+        // Custom multiplayer game logic that runs instead of super.update()
+        // Handle wall collisions (top and bottom)
+        this.handleMultiplayerWallCollisions();
+        
+        // Custom collision detection
+        if (this.ball && this.playerPaddle && this.aiPaddle) {
+          // Check for collision with player paddle
+          if (Phaser.Geom.Intersects.RectangleToRectangle(
+            this.ball.getBounds(),
+            this.playerPaddle.getBounds()
+          )) {
+            const ballVelocityX = this.ball.body ? this.ball.body.velocity.x : 0;
+            if (ballVelocityX < 0) {
+              // Only if ball is moving towards paddle
+              this.handleMultiplayerPaddleCollision(this.ball, this.playerPaddle);
+            }
+          }
+
+          // Enhanced collision detection for player 2's paddle with a larger detection area
+          // Create a slightly larger bounds for more reliable collision detection
+          const paddleBounds = this.aiPaddle.getBounds();
+          const ballBounds = this.ball.getBounds();
           
-          // Ball-paddle collision detection from parent class
-          this.handleMultiplayerCollisions();
-
-          // Check for scoring
-          this.checkMultiplayerScoring();
-
-          // Keep paddles inside the screen bounds
-          this.constrainPaddles();
-        } else {
-          this.gameStarted = true; // Ensure game is running
+          // Expand the paddle bounds slightly for more reliable collision detection
+          paddleBounds.width += 4;
+          
+          if (Phaser.Geom.Intersects.RectangleToRectangle(ballBounds, paddleBounds)) {
+            const ballVelocityX = this.ball.body ? this.ball.body.velocity.x : 0;
+            if (ballVelocityX > 0) {
+              // Only if ball is moving towards paddle
+              this.handleMultiplayerPaddleCollision(this.ball, this.aiPaddle);
+              console.log("Ball hit player 2 paddle at:", 
+                this.ball.x.toFixed(1), this.ball.y.toFixed(1));
+            }
+          }
         }
+        
+        // We can still call these methods since they're protected, not private
+        this.checkScoring();
+        this.constrainPaddles();
       }
 
-      // Send state updates periodically
-      if (this.networkUpdateTimer >= this.networkUpdateInterval) {
+      // Host should send updates more frequently for smoothness
+      if (this.networkUpdateTimer >= 25) { // Increased frequency (25ms ≈ 40fps)
         const isRunning = this.player1Ready && this.player2Ready;
         this.sendGameState(isRunning);
         this.networkUpdateTimer = 0;
       }
     } else {
-      // Client-side logic: send paddle updates periodically
+      // Client-side logic: send paddle updates very frequently (16ms ≈ 60fps) for smoother movement
       this.networkUpdateTimer += delta;
-      if (this.networkUpdateTimer >= this.networkUpdateInterval) {
+      if (this.networkUpdateTimer >= 16) { // Even more frequent updates for smooth movement
         this.sendClientPaddleState();
         this.networkUpdateTimer = 0;
       }
     }
   }
-  
+
   private determinePlayerRole(gameData: MultiplayerGameState) {
     if (gameData.player1Id === this.userId) {
       this.role = "player1";
@@ -218,7 +243,19 @@ export class PongMultiPlayerScene extends PongSinglePlayerScene {
 
   private setupPlayer2Controls() {
     // Player 2 controls the right paddle (which is the AI paddle in single player)
-    // We'll override updateAI in our custom update cycle
+    // Set initial paddle position if needed
+    if (this.aiPaddle && this.aiPaddle.body) {
+      // Make sure the AI paddle is initially stationary 
+      this.aiPaddle.setVelocity(0, 0);
+      
+      // Make sure the paddle is visible and has the right position
+      this.aiPaddle.setVisible(true);
+      
+      // The paddle is fully controlled by player 2's input:
+      // 1. We've overridden updateAI() to do nothing
+      // 2. We've implemented handleInput() to control this paddle with player 2's inputs
+      // 3. We've modified the update() method to not call super.update(), avoiding AI logic
+    }
   }
 
   private setupSpectatorMode() {
@@ -335,8 +372,21 @@ export class PongMultiPlayerScene extends PongSinglePlayerScene {
     }
 
     // Host accepts the client's position for the player2 paddle.
+    // This is crucial for ensuring player2's movement is visible to player1
     if (this.isHost && gameState.paddle2 && this.aiPaddle) {
+      // Ensure the paddle physics body is active and moving correctly
       this.aiPaddle.setPosition(gameState.paddle2.x, gameState.paddle2.y);
+      if (this.aiPaddle.body) {
+        // Apply the exact velocity from player2
+        this.aiPaddle.body.velocity.y = gameState.paddle2.dy;
+      }
+      // Log to verify we're receiving updates
+      console.log("Host received player2 paddle update:", 
+        gameState.paddle2.x.toFixed(1), gameState.paddle2.y.toFixed(1), 
+        "velocity:", gameState.paddle2.dy.toFixed(1));
+      
+      // Apply any constraints to keep paddle in bounds after moving
+      this.constrainPaddles();
     }
 
     // Update scores
@@ -419,86 +469,81 @@ export class PongMultiPlayerScene extends PongSinglePlayerScene {
       const appId = "default-pong-app-id";
       const gameRef = doc(this.db, `artifacts/${appId}/public/data/games`, this.gameId);
 
-      const paddle2State: PaddleState = {
-        x: this.aiPaddle.x,
-        y: this.aiPaddle.y,
-        dy: this.aiPaddle.body?.velocity.y || 0,
-      };
+      // Make sure the paddle position is sent correctly
+      if (this.aiPaddle && this.aiPaddle.body) {
+        const paddle2State: PaddleState = {
+          x: this.aiPaddle.x,
+          y: this.aiPaddle.y,
+          dy: this.aiPaddle.body.velocity.y,
+        };
 
-      // Client only sends its own paddle data
-      updateDoc(gameRef, { paddle2: paddle2State }).catch((err) =>
-        console.error("Error sending client paddle state:", err)
-      );
+        // Client only sends its own paddle data - more frequently for better responsiveness
+        console.log("Player 2 sending paddle position:", 
+          paddle2State.x.toFixed(1), paddle2State.y.toFixed(1), 
+          "velocity:", paddle2State.dy.toFixed(1));
+          
+        updateDoc(gameRef, { paddle2: paddle2State }).catch((err) =>
+          console.error("Error sending client paddle state:", err)
+        );
+      }
     } catch (error) {
       console.error("Failed to send client paddle state:", error);
     }
   }
 
-  // Methods needed for our custom update loop that don't call parent methods
+  // Multiplayer implementations of private parent class methods
   
-  private handleMultiplayerCollisions(): void {
-    // Check for collision with player paddle
-    if (
-      Phaser.Geom.Intersects.RectangleToRectangle(
-        this.ball.getBounds(),
-        this.playerPaddle.getBounds()
-      )
-    ) {
-      const ballVelocityX = this.ball.body ? this.ball.body.velocity.x : 0;
-      if (ballVelocityX < 0) {
-        // Only if ball is moving towards paddle
-        this.handlePaddleCollision(this.ball, this.playerPaddle);
-      }
-    }
+  private handleMultiplayerWallCollisions(): void {
+    if (!this.ball || !this.ball.body) return;
 
-    // Check for collision with AI paddle (player 2's paddle in multiplayer)
-    if (
-      Phaser.Geom.Intersects.RectangleToRectangle(
-        this.ball.getBounds(),
-        this.aiPaddle.getBounds()
-      )
-    ) {
-      const ballVelocityX = this.ball.body ? this.ball.body.velocity.x : 0;
-      if (ballVelocityX > 0) {
-        // Only if ball is moving towards paddle
-        this.handlePaddleCollision(this.ball, this.aiPaddle);
-      }
+    // Bounce off top and bottom walls
+    if (this.ball.y < this.ball.height / 2) {
+      // Top wall collision
+      this.ball.y = this.ball.height / 2;
+      this.ball.body.velocity.y = Math.abs(this.ball.body.velocity.y);
+    } else if (this.ball.y > this.cameras.main.height - this.ball.height / 2) {
+      // Bottom wall collision
+      this.ball.y = this.cameras.main.height - this.ball.height / 2;
+      this.ball.body.velocity.y = -Math.abs(this.ball.body.velocity.y);
     }
   }
 
-  private checkMultiplayerScoring(): void {
-    let scorer: "player" | "ai" | undefined;
-
-    if (this.ball.x > CANVAS_WIDTH) {
-      // Player 1 scores
-      this.playerScore++;
-      scorer = "player";
-    } else if (this.ball.x < 0) {
-      // Player 2 scores (AI in single player, but Player 2 in multiplayer)
-      this.aiScore++;
-      scorer = "ai";
+  private handleMultiplayerPaddleCollision(ball: Phaser.Physics.Arcade.Image, paddle: Phaser.Physics.Arcade.Image): void {
+    if (!ball.body) return;
+    
+    // Calculate where on the paddle the ball hit (0 = middle, -1 = top, 1 = bottom)
+    const relativeImpactPosition = (ball.y - paddle.y) / (paddle.height / 2);
+    
+    // Fix overlap - push ball outside paddle to prevent sticking
+    const isRightPaddle = paddle === this.aiPaddle;
+    if (isRightPaddle) {
+      // Right paddle (player 2) collision - move ball left
+      ball.x = paddle.x - paddle.width/2 - ball.width/2 - 2; // Move further left to ensure no overlap
+    } else {
+      // Left paddle (player 1) collision - move ball right
+      ball.x = paddle.x + paddle.width/2 + ball.width/2 + 2; // Move further right to ensure no overlap
     }
-
-    if (scorer) {
-      this.lastScorer = scorer;
-      this.playerScoreText.setText(this.playerScore.toString());
-      this.aiScoreText.setText(this.aiScore.toString());
-
-      if (this.playerScore >= MAX_SCORE || this.aiScore >= MAX_SCORE) {
-        this.gameOver = true;
-        let message = "";
-        
-        if (this.playerScore >= MAX_SCORE) {
-          message = "Player 1 Wins!";
-        } else {
-          message = "Player 2 Wins!";
-        }
-        
-        this.setMessage(message);
-      } else {
-        this.resetBall();
-      }
-    }
+    
+    // Reverse the ball's x velocity with a definitive speed
+    // Make sure the ball has a strong enough velocity in the opposite direction
+    const minBallSpeed = 400; // Fixed ball speed after collision
+    
+    ball.body.velocity.x = isRightPaddle ? -minBallSpeed : minBallSpeed;
+    
+    // Add some y velocity based on where the ball hit the paddle
+    ball.body.velocity.y = relativeImpactPosition * 300; // Increased y-influence for more dynamic bounces
+    
+    // Increase speed slightly with each hit
+    const currentSpeed = Math.sqrt(Math.pow(ball.body.velocity.x, 2) + Math.pow(ball.body.velocity.y, 2));
+    const speedIncreaseFactor = 1.05; // 5% speed increase
+    ball.body.velocity.x = ball.body.velocity.x / currentSpeed * currentSpeed * speedIncreaseFactor;
+    ball.body.velocity.y = ball.body.velocity.y / currentSpeed * currentSpeed * speedIncreaseFactor;
+    
+    // Log for debugging with more precise information
+    console.log(`Ball hit ${isRightPaddle ? "player2 (right)" : "player1 (left)"} paddle! Ball pos:`, 
+      ball.x.toFixed(1), ball.y.toFixed(1), 
+      "Paddle pos:", paddle.x.toFixed(1), paddle.y.toFixed(1), 
+      "New velocity:", ball.body.velocity.x.toFixed(1), ball.body.velocity.y.toFixed(1));
   }
 
   // Override base class methods with our multiplayer versions
