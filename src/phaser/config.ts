@@ -17,6 +17,10 @@ export const phaserConfig: Phaser.Types.Core.GameConfig = {
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: CANVAS_WIDTH,
+    height: CANVAS_HEIGHT,
+    parent: "phaser-container",
+    expandParent: true,
   },
   input: {
     activePointers: 3, // Support multi-touch

@@ -63,7 +63,7 @@ const PhaserGame: React.FC<PhaserGameProps> = ({
   }, [isSinglePlayer, isMultiplayer, gameId, userId, db]); // Re-initialize if these props change
 
   return (
-    <div className="phaser-game-container w-full h-full">
+    <div className="phaser-game-container w-full h-full flex items-center justify-center">
       <div
         id="phaser-container"
         ref={gameContainerRef}

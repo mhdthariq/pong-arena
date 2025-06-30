@@ -77,26 +77,30 @@ export default function GameClient({ gameId }: GameClientProps) {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-4">
-        <h1 className="text-5xl font-bold mb-4 tracking-wider">Loading Game</h1>
-        <div className="w-20 h-20 border-t-4 border-blue-500 border-solid rounded-full animate-spin mx-auto mb-8"></div>
-        <p className="text-lg">Please wait while we set up your game...</p>
+      <main className="min-h-screen w-full flex flex-col items-center justify-center bg-gray-900 text-white p-4 md:p-8">
+        <div className="container max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-wider drop-shadow-glow">Loading Game</h1>
+          <div className="w-16 h-16 md:w-20 md:h-20 border-t-4 border-blue-500 border-solid rounded-full animate-spin mx-auto mb-8"></div>
+          <p className="text-lg md:text-xl">Please wait while we set up your game...</p>
+        </div>
       </main>
     );
   }
 
   if (error) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-4">
-        <div className="max-w-lg bg-red-900/60 p-8 rounded-lg shadow-lg border-2 border-red-700 text-center">
-          <h2 className="text-3xl font-bold mb-6">Game Error</h2>
-          <p className="mb-6 text-lg">{error}</p>
-          <Link
-            href="/multi-player/lobby"
-            className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
-          >
-            Return to Lobby
-          </Link>
+      <main className="min-h-screen w-full flex flex-col items-center justify-center bg-gray-900 text-white p-4 md:p-8">
+        <div className="container max-w-4xl mx-auto">
+          <div className="bg-red-900/60 p-6 md:p-8 rounded-lg shadow-lg border-2 border-red-700 text-center mx-auto max-w-lg">
+            <h2 className="text-2xl md:text-3xl font-bold mb-6 drop-shadow-glow">Game Error</h2>
+            <p className="mb-6 text-lg">{error}</p>
+            <Link
+              href="/multi-player/lobby"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 shadow-lg inline-block"
+            >
+              Return to Lobby
+            </Link>
+          </div>
         </div>
       </main>
     );
@@ -104,63 +108,78 @@ export default function GameClient({ gameId }: GameClientProps) {
 
   if (initializing) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-4">
-        <h1 className="text-5xl font-bold mb-4 tracking-wider">
-          Initializing Game
-        </h1>
-        <div className="w-20 h-20 border-t-4 border-blue-500 border-solid rounded-full animate-spin mx-auto mb-8"></div>
-        <p className="text-xl mb-2">Setting up multiplayer session</p>
-        <p className="text-lg text-blue-400 font-mono">
-          Game Code: {gameCode || "Loading..."}
-        </p>
+      <main className="min-h-screen w-full flex flex-col items-center justify-center bg-gray-900 text-white p-4 md:p-8">
+        <div className="container max-w-4xl mx-auto text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 tracking-wider drop-shadow-glow">
+            Initializing Game
+          </h1>
+          <div className="w-16 h-16 md:w-20 md:h-20 border-t-4 border-blue-500 border-solid rounded-full animate-spin mx-auto mb-8"></div>
+          <p className="text-lg md:text-xl mb-3">Setting up multiplayer session</p>
+          <div className="inline-block bg-gray-800 px-4 py-2 rounded-lg border border-blue-500">
+            <p className="text-lg text-blue-400 font-mono">
+              Game Code: {gameCode || "Loading..."}
+            </p>
+          </div>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-4">
-      <h1 className="text-5xl font-bold mb-4 tracking-wider">
-        Multiplayer Match
-      </h1>
-      <p className="text-lg text-blue-400 mb-4 font-mono">
-        Game Code: {gameCode || "Loading..."}
-      </p>
-
-      {/* Game container - matching the single player dimensions */}
-      <div className="relative w-[90vw] h-[80vh] bg-black border-4 border-blue-700 rounded-lg overflow-hidden shadow-lg shadow-blue-700/30">
-        {gameStarted && userId && db && (
-          <div className="h-full w-full relative">
-            <PhaserGame
-              isSinglePlayer={false}
-              isMultiplayer={true}
-              gameId={gameId}
-              userId={userId}
-              db={db}
-            />
+    <main className="min-h-screen w-full flex flex-col items-center justify-center bg-gray-900 text-white p-4 md:p-8">
+      <div className="container max-w-7xl mx-auto">
+        <header className="text-center mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 tracking-wider drop-shadow-glow">
+            Multiplayer Match
+          </h1>
+          <div className="inline-block bg-gray-800 px-3 py-1 rounded-lg border border-blue-500 mb-4">
+            <p className="text-md sm:text-lg text-blue-400 font-mono">
+              Game Code: {gameCode || "Loading..."}
+            </p>
           </div>
-        )}
-      </div>
+        </header>
 
-      {/* Controls - matching single player style */}
-      <div className="mt-6 flex flex-wrap justify-center gap-4">
-        <button
-          onClick={() => window.location.reload()}
-          className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
-        >
-          Restart Game
-        </button>
-        <Link
-          href="/multi-player/lobby"
-          className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
-        >
-          Back to Lobby
-        </Link>
-      </div>
+        {/* Game container - responsive for all devices */}
+        <div className="relative mx-auto bg-black border-4 border-blue-700 rounded-lg overflow-hidden shadow-lg shadow-blue-700/30" 
+             style={{ 
+               width: "min(90vw, 1200px)",
+               height: "min(70vh, 675px)",
+               aspectRatio: "16/9"
+             }}>
+          {gameStarted && userId && db && (
+            <div className="h-full w-full relative">
+              <PhaserGame
+                isSinglePlayer={false}
+                isMultiplayer={true}
+                gameId={gameId}
+                userId={userId}
+                db={db}
+              />
+            </div>
+          )}
+        </div>
 
-      {/* Game instructions */}
-      <div className="mt-6 text-gray-300 text-center">
-        <p className="mb-2">Controls: ↑↓ or W/S to move paddle</p>
-        <p>Press SPACE to serve | First to 11 points wins</p>
+        {/* Controls - improved responsive design */}
+        <div className="mt-4 md:mt-6 flex flex-wrap justify-center gap-3 md:gap-4">
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 sm:px-6 md:px-8 py-2 md:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 transform hover:scale-105 shadow-lg text-sm sm:text-base"
+          >
+            Restart Game
+          </button>
+          <Link
+            href="/multi-player/lobby"
+            className="px-4 sm:px-6 md:px-8 py-2 md:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 shadow-lg text-sm sm:text-base"
+          >
+            Back to Lobby
+          </Link>
+        </div>
+
+        {/* Game instructions - responsive text sizes */}
+        <div className="mt-4 md:mt-6 text-gray-300 text-center">
+          <p className="mb-1 md:mb-2 text-sm sm:text-base">Controls: ↑↓ or W/S to move paddle</p>
+          <p className="text-sm sm:text-base">Press SPACE to serve | First to 11 points wins</p>
+        </div>
       </div>
     </main>
   );
