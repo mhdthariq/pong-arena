@@ -1,103 +1,109 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState, useEffect } from "react";
+import {
+  setupFirebaseAuthListener,
+  getFirebaseClient,
+} from "../firebase/firebaseClient";
+import MessageBox from "../components/MessageBox";
+import { useRouter } from "next/navigation";
+import { Firestore } from "firebase/firestore";
+import { Auth } from "firebase/auth";
+
+const HomePageContent = () => {
+  const [db, setDb] = useState<Firestore | null>(null);
+  const [auth, setAuth] = useState<Auth | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isAuthReady, setIsAuthReady] = useState<boolean>(false);
+  const [messageBox, setMessageBox] = useState<{
+    message: string;
+    onConfirm: () => void;
+    showCancel?: boolean;
+    onCancel?: () => void;
+  }>({ message: "", onConfirm: () => {} });
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const { db, auth } = getFirebaseClient();
+    setDb(db);
+    setAuth(auth);
+
+    const unsubscribeAuth = setupFirebaseAuthListener(
+      setUserId,
+      setIsAuthReady,
+      setMessageBox
+    );
+    return () => unsubscribeAuth();
+  }, []);
+
+  const onSinglePlayer = () => {
+    router.push("/single-player");
+  };
+
+  const onMultiplayer = () => {
+    if (isAuthReady && userId && db && auth) {
+      router.push("/multi-player/lobby");
+    } else {
+      setMessageBox({
+        message:
+          "Firebase authentication not ready. Please wait or check your connection.",
+        onConfirm: () => setMessageBox({ message: "", onConfirm: () => {} }),
+      });
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+    // Main container for the home page content, centered and responsive
+    <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl text-center flex flex-col items-center justify-center min-h-[calc(100vh-theme(spacing.24))] mx-auto">
+      <h2 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-gray-200">
+        Choose Your Battle!
+      </h2>
+      <div className="space-y-4 w-full">
+        {" "}
+        {/* Buttons take full width within max-width container */}
+        <button
+          onClick={onSinglePlayer}
+          className="w-full px-8 py-4 text-xl sm:text-2xl font-semibold rounded-lg shadow-lg
+                               bg-gradient-to-r from-green-500 to-teal-600 text-white
+                               hover:from-green-600 hover:to-teal-700 transition duration-300 ease-in-out transform hover:scale-105"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          Player vs. AI
+        </button>
+        <button
+          onClick={onMultiplayer}
+          disabled={!isAuthReady || !userId || !db || !auth}
+          className={`w-full px-8 py-4 text-xl sm:text-2xl font-semibold rounded-lg shadow-lg transition duration-300 ease-in-out
+                                bg-gradient-to-r from-purple-600 to-indigo-700 text-white
+                                ${
+                                  !isAuthReady || !userId || !db || !auth
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : "hover:from-purple-700 hover:to-indigo-800 transform hover:scale-105"
+                                }`}
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          Player vs. Player (Multiplayer)
+        </button>
+        {!isAuthReady && (
+          <p className="text-gray-400 mt-4 text-sm sm:text-base">
+            Initializing Firebase for multiplayer...
+          </p>
+        )}
+        {isAuthReady && !userId && (
+          <p className="text-red-400 mt-4 text-sm sm:text-base">
+            Failed to authenticate for multiplayer. Please check console for
+            errors.
+          </p>
+        )}
+      </div>
+      {isAuthReady && userId && (
+        <p className="text-gray-400 text-sm mt-6 break-words">
+          Your User ID:{" "}
+          <span className="font-mono text-xs sm:text-sm">{userId}</span>
+        </p>
+      )}
+      <MessageBox {...messageBox} />
     </div>
   );
-}
+};
+
+export default HomePageContent;
