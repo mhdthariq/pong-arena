@@ -5,10 +5,10 @@ import GameClient from "./GameClient";
 // @ts-expect-error - Next.js App Router typing issues
 export default function MultiplayerGamePage({ params }) {
   // Add runtime validation to ensure params.id exists and is a string
-  if (!params || typeof params.id !== 'string') {
-    throw new Error('Invalid game ID parameter');
+  if (!params || typeof params.id !== "string") {
+    throw new Error("Invalid game ID parameter");
   }
-  
+
   // Get the game ID from params
   const gameId = params.id;
 
