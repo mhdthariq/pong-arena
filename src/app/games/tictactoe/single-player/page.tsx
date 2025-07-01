@@ -119,28 +119,56 @@ export default function TicTacToeSinglePlayerPage() {
 
       <main className="w-full flex-grow z-10 relative animate-slide-up">
         {!gameStarted ? (
-          <GlassmorphicCard
-            blur="lg"
-            opacity="medium"
-            rounded="xl"
-            shadow="xl"
-            padding="lg"
-            className="max-w-2xl mx-auto"
-          >
-            <TicTacToeSettings
-              initialSettings={gameSettings}
-              onSave={handleStartGame}
-            />
+          <>
+            <GlassmorphicCard
+              blur="lg"
+              opacity="medium"
+              rounded="xl"
+              shadow="xl"
+              padding="lg"
+              className="max-w-7xl mx-auto"
+            >
+              <TicTacToeSettings
+                initialSettings={gameSettings}
+                onSave={handleStartGame}
+              />
+            </GlassmorphicCard>
 
-            {/* AI Personality Selection */}
-            <div className="mt-8 border-t border-white/10 pt-6">
-              <h3 className="text-xl font-medium mb-4 text-white drop-shadow-glow">
-                AI Personality
-              </h3>
-              <p className="text-blue-200 mb-4">
-                Choose how the AI opponent will behave during the game
-              </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {/* AI Personality Selection Card */}
+            <GlassmorphicCard
+              blur="lg"
+              opacity="medium"
+              rounded="xl"
+              shadow="xl"
+              padding="lg"
+              className="max-w-7xl mx-auto mt-6"
+            >
+              <div className="flex items-center mb-6">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mr-3">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-white"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-semibold text-white drop-shadow-glow">
+                    AI Personality
+                  </h3>
+                  <p className="text-blue-200 text-sm mt-1">
+                    Choose how the AI opponent will behave during the game
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                 {(
                   [
                     "balanced",
@@ -154,21 +182,113 @@ export default function TicTacToeSinglePlayerPage() {
                   <button
                     key={personality}
                     onClick={() => changeAiPersonality(personality)}
-                    className={`relative overflow-hidden py-3 px-3 rounded-lg text-left transition-all duration-300 ${
+                    className={`relative overflow-hidden p-4 rounded-xl text-left transition-all duration-300 group ${
                       aiPersonality === personality
-                        ? "bg-white/30 text-white transform -translate-y-1 shadow-lg"
-                        : "bg-white/10 hover:bg-white/20 text-gray-200"
+                        ? "bg-gradient-to-br from-amber-500 to-orange-600 text-white transform -translate-y-1 shadow-xl"
+                        : "bg-white/10 hover:bg-white/20 text-gray-200 hover:transform hover:-translate-y-0.5"
                     }`}
                   >
                     {/* Ripple effect */}
                     {aiPersonality === personality && (
                       <span className="absolute inset-0 bg-white/10 animate-pulse-slow"></span>
                     )}
-                    <span className="font-medium capitalize relative z-10">
+
+                    {/* Icon based on personality */}
+                    <div className="mb-3 relative z-10">
+                      {personality === "balanced" && (
+                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                      {personality === "aggressive" && (
+                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                      {personality === "defensive" && (
+                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                      {personality === "random" && (
+                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                      {personality === "strategic" && (
+                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                      )}
+                      {personality === "mimicking" && (
+                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+
+                    <span className="font-semibold capitalize relative z-10 text-lg">
                       {personality.charAt(0).toUpperCase() +
                         personality.slice(1)}
                     </span>
-                    <span className="block text-xs mt-1 opacity-80 relative z-10">
+
+                    <span className="block text-xs mt-2 opacity-90 relative z-10 leading-relaxed">
                       {personality === "balanced"
                         ? "Balances offense and defense strategies"
                         : personality === "aggressive"
@@ -184,8 +304,8 @@ export default function TicTacToeSinglePlayerPage() {
                   </button>
                 ))}
               </div>
-            </div>
-          </GlassmorphicCard>
+            </GlassmorphicCard>
+          </>
         ) : (
           <GlassmorphicCard
             blur="lg"

@@ -2,17 +2,10 @@
 
 import React from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
+
 import Footer from "../../../../shared/components/Footer";
 
-// Import Phaser game component with dynamic import to prevent SSR issues
-const PhaserGame = dynamic(
-  () =>
-    import("../../../../games/pong/components/PhaserGame").then(
-      (mod) => mod.default
-    ),
-  { ssr: false }
-);
+// No longer need PhaserGame import since this page just shows selection
 
 const PongSinglePlayerPage = () => {
   return (
@@ -27,47 +20,95 @@ const PongSinglePlayerPage = () => {
               ← Back to Game Arena
             </Link>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 tracking-wider drop-shadow-glow">
-              Pong - Player vs. AI
+              Choose Your Pong Experience
             </h1>
+            <p className="text-xl text-blue-200 mb-8">
+              Select between the classic retro experience or the enhanced modern
+              version
+            </p>
           </header>
 
-          {/* Game container - responsive for all devices */}
-          <div
-            className="relative mx-auto bg-black border-4 border-blue-700 rounded-lg overflow-hidden shadow-lg shadow-blue-700/30"
-            style={{
-              width: "min(90vw, 1200px)",
-              height: "min(70vh, 675px)",
-              aspectRatio: "16/9",
-            }}
-          >
-            {/* Phaser game container */}
-            <div className="h-full w-full relative">
-              <PhaserGame isSinglePlayer={true} />
+          {/* Game Version Selection */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Classic Version */}
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-blue-500/50 rounded-xl p-6 hover:border-blue-400 transition-all duration-300 hover:scale-105">
+              <div className="text-center">
+                <div className="text-6xl mb-4">🏓</div>
+                <h2 className="text-2xl font-bold text-white mb-4">
+                  Classic Pong
+                </h2>
+                <p className="text-gray-300 mb-6">
+                  The original retro experience with traditional graphics and
+                  gameplay
+                </p>
+                <ul className="text-sm text-gray-400 mb-6 space-y-1">
+                  <li>• Pixel-perfect retro graphics</li>
+                  <li>• Classic physics and mechanics</li>
+                  <li>• Nostalgic sound effects</li>
+                  <li>• Built with Phaser.js</li>
+                </ul>
+                <Link
+                  href="/games/pong/single-player/classic"
+                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
+                >
+                  Play Classic
+                </Link>
+              </div>
+            </div>
+
+            {/* Modern Version */}
+            <div className="bg-gradient-to-br from-purple-800 to-blue-900 border-2 border-purple-500/50 rounded-xl p-6 hover:border-purple-400 transition-all duration-300 hover:scale-105">
+              <div className="text-center">
+                <div className="text-6xl mb-4">✨</div>
+                <h2 className="text-2xl font-bold text-white mb-4">
+                  Modern Pong
+                </h2>
+                <p className="text-gray-300 mb-6">
+                  Enhanced gameplay with power-ups, advanced AI, and stunning
+                  visual effects
+                </p>
+                <ul className="text-sm text-gray-400 mb-6 space-y-1">
+                  <li>• Glassmorphic UI design</li>
+                  <li>• 12 unique power-ups</li>
+                  <li>• Advanced AI personalities</li>
+                  <li>• Particle effects & animations</li>
+                </ul>
+                <Link
+                  href="/games/pong/single-player-modern"
+                  className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
+                >
+                  Play Modern
+                </Link>
+              </div>
             </div>
           </div>
 
-          {/* Controls - improved responsive design */}
-          <div className="mt-4 md:mt-6 flex flex-wrap justify-center gap-3 md:gap-4">
-            <div className="p-4 bg-gray-800 rounded-lg">
-              <h2 className="text-lg font-semibold mb-2 text-center">
-                Keyboard Controls
+          {/* Universal Controls */}
+          <div className="mt-12 max-w-2xl mx-auto">
+            <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
+              <h2 className="text-xl font-bold text-center mb-4 text-white">
+                Universal Controls
               </h2>
-              <ul className="text-gray-300">
-                <li className="mb-1">↑ / W - Move paddle up</li>
-                <li className="mb-1">↓ / S - Move paddle down</li>
-                <li>Space - Pause/Resume game</li>
-              </ul>
-            </div>
-
-            <div className="p-4 bg-gray-800 rounded-lg">
-              <h2 className="text-lg font-semibold mb-2 text-center">
-                Game Rules
-              </h2>
-              <ul className="text-gray-300">
-                <li className="mb-1">First to 10 points wins</li>
-                <li className="mb-1">Ball speed increases with each hit</li>
-                <li>Angle changes based on where the ball hits your paddle</li>
-              </ul>
+              <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <h3 className="font-semibold text-blue-400 mb-2">Keyboard</h3>
+                  <ul className="text-gray-300 space-y-1">
+                    <li>↑ / W - Move paddle up</li>
+                    <li>↓ / S - Move paddle down</li>
+                    <li>Space - Start/Pause game</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-purple-400 mb-2">
+                    Touch (Mobile)
+                  </h3>
+                  <ul className="text-gray-300 space-y-1">
+                    <li>Top half - Move paddle up</li>
+                    <li>Bottom half - Move paddle down</li>
+                    <li>Tap - Start/Pause game</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -13,6 +13,7 @@ import {
 import {
   MultiplayerTicTacToeGameState,
   TicTacToePlayer,
+  DEFAULT_SETTINGS,
 } from "../../games/tictactoe/lib/types";
 import { initializeBoard } from "../../games/tictactoe/lib/gameLogic";
 
@@ -30,30 +31,36 @@ export function generateGameCode(): string {
 // Create a new TicTacToe game
 export async function createTicTacToeGame(
   db: Firestore,
-  userId: string
+  userId: string,
 ): Promise<{ gameId: string; gameCode: string }> {
   try {
     const appId = "default-tictactoe-app-id";
     const gamesRef = collection(
       db,
-      `artifacts/${appId}/public/data/tictactoe-games`
+      `artifacts/${appId}/public/data/tictactoe-games`,
     );
 
     const gameCode = generateGameCode();
 
     // Initial game state
+    const initialBoard = initializeBoard();
     const initialGameState: MultiplayerTicTacToeGameState = {
-      board: initializeBoard(),
+      board: initialBoard,
       currentPlayer: "X",
       winner: null,
       winningLine: null,
       moveHistory: [],
+      settings: DEFAULT_SETTINGS,
       isGameOver: false,
+      startTime: Date.now(),
+      lastMoveTime: null,
+      moveTimeRemaining: null,
+      boardHistory: [initialBoard],
+      historyIndex: 0,
       player1Id: userId,
       player2Id: null,
       player1Symbol: "X",
       player2Symbol: "O",
-      lastMoveTimestamp: Date.now(),
       status: "waiting",
       gameCode: gameCode,
     };
@@ -73,13 +80,13 @@ export async function createTicTacToeGame(
 export async function joinTicTacToeGameByCode(
   db: Firestore,
   gameCode: string,
-  userId: string
+  userId: string,
 ): Promise<string | null> {
   try {
     const appId = "default-tictactoe-app-id";
     const gamesRef = collection(
       db,
-      `artifacts/${appId}/public/data/tictactoe-games`
+      `artifacts/${appId}/public/data/tictactoe-games`,
     );
 
     // Query for the game with this code
@@ -114,7 +121,7 @@ export async function joinTicTacToeGameByCode(
     await updateDoc(gameDoc.ref, {
       player2Id: userId,
       status: "playing",
-      lastMoveTimestamp: Date.now(),
+      lastMoveTime: Date.now(),
     });
 
     console.log("Successfully joined TicTacToe game:", gameDoc.id);
@@ -131,13 +138,13 @@ export async function makeTicTacToeMove(
   gameId: string,
   userId: string,
   row: number,
-  col: number
+  col: number,
 ): Promise<boolean> {
   try {
     const appId = "default-tictactoe-app-id";
     const gameRef = doc(
       db,
-      `artifacts/${appId}/public/data/tictactoe-games/${gameId}`
+      `artifacts/${appId}/public/data/tictactoe-games/${gameId}`,
     );
 
     const gameSnapshot = await getDoc(gameRef);
@@ -187,7 +194,7 @@ export async function makeTicTacToeMove(
 
     // Check for draw (all cells filled)
     const isBoardFull = newBoard.every((row) =>
-      row.every((cell) => cell !== null)
+      row.every((cell) => cell !== null),
     );
 
     const isGameOver = winner !== null || isBoardFull;
@@ -199,7 +206,7 @@ export async function makeTicTacToeMove(
       board: newBoard,
       currentPlayer: nextPlayer,
       moveHistory: newMoveHistory,
-      lastMoveTimestamp: Date.now(),
+      lastMoveTime: Date.now(),
       winner: winner || (isBoardFull ? "draw" : null),
       winningLine,
       isGameOver,
@@ -217,12 +224,12 @@ export async function makeTicTacToeMove(
 export function subscribeTicTacToeGame(
   db: Firestore,
   gameId: string,
-  callback: (gameState: MultiplayerTicTacToeGameState) => void
+  callback: (gameState: MultiplayerTicTacToeGameState) => void,
 ) {
   const appId = "default-tictactoe-app-id";
   const gameRef = doc(
     db,
-    `artifacts/${appId}/public/data/tictactoe-games/${gameId}`
+    `artifacts/${appId}/public/data/tictactoe-games/${gameId}`,
   );
 
   return onSnapshot(
@@ -236,7 +243,7 @@ export function subscribeTicTacToeGame(
     },
     (error) => {
       console.error("Error subscribing to game updates:", error);
-    }
+    },
   );
 }
 
@@ -309,13 +316,13 @@ function checkWinner(board: (TicTacToePlayer | null)[][]): {
 // Get a specific TicTacToe game by ID
 export async function getTicTacToeGame(
   db: Firestore,
-  gameId: string
+  gameId: string,
 ): Promise<MultiplayerTicTacToeGameState | null> {
   try {
     const appId = "default-tictactoe-app-id";
     const gameRef = doc(
       db,
-      `artifacts/${appId}/public/data/tictactoe-games/${gameId}`
+      `artifacts/${appId}/public/data/tictactoe-games/${gameId}`,
     );
 
     const gameSnapshot = await getDoc(gameRef);
@@ -333,13 +340,13 @@ export async function getTicTacToeGame(
 
 // Get active TicTacToe games for lobby
 export async function getActiveTicTacToeGames(
-  db: Firestore
+  db: Firestore,
 ): Promise<{ id: string; data: MultiplayerTicTacToeGameState }[]> {
   try {
     const appId = "default-tictactoe-app-id";
     const gamesRef = collection(
       db,
-      `artifacts/${appId}/public/data/tictactoe-games`
+      `artifacts/${appId}/public/data/tictactoe-games`,
     );
 
     // Get games that are waiting for players
