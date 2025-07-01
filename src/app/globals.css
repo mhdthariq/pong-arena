@@ -1,57 +1,240 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+    --background: #0f172a;
+    --foreground: #f8fafc;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-shine: rgba(255, 255, 255, 0.05);
+    --glass-shadow: rgba(0, 0, 0, 0.25);
+    --primary: #60a5fa;
+    --primary-hover: #3b82f6;
+    --success: #10b981;
+    --error: #ef4444;
+    --warning: #f59e0b;
 }
 
 /* @theme inline was here, but it's not standard CSS and was causing errors. */
 
 html,
 body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden; /* Prevent scrolling on the body */
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Prevent scrolling on the body */
 }
 
 /* Add drop shadow glow effect for text */
 .drop-shadow-glow {
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+    :root {
+        --background: #0a0a0a;
+        --foreground: #ededed;
+        --glass-bg: rgba(15, 15, 15, 0.5);
+        --glass-border: rgba(40, 40, 40, 0.2);
+        --glass-shine: rgba(50, 50, 50, 0.05);
+    }
+}
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Animation Classes */
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.animate-slide-up {
+    animation: slideInUp 0.5s ease-out;
+}
+
+.animate-pulse-slow {
+    animation: pulse 3s ease-in-out infinite;
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.animate-ripple {
+    animation: ripple 0.6s linear;
 }
 
 /* Base body styles for the entire application */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
-  /* Ensure body takes full height and prevents default scrollbar from conflicting with custom */
-  min-height: 100vh;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+    background: var(--background);
+    color: var(--foreground);
+    font-family:
+        var(--font-inter),
+        "Inter",
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        sans-serif;
+    /* Ensure body takes full height and prevents default scrollbar from conflicting with custom */
+    min-height: 100vh;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    position: relative;
+    background-image:
+        radial-gradient(
+            circle at top right,
+            rgba(96, 165, 250, 0.1),
+            transparent 40%
+        ),
+        radial-gradient(
+            circle at bottom left,
+            rgba(126, 34, 206, 0.1),
+            transparent 40%
+        );
 }
 
 /* Custom scrollbar styles */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
+    width: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #374151; /* Darker gray for track */
-  border-radius: 10px;
+    background: #374151; /* Darker gray for track */
+    border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #60a5fa; /* Blue for thumb */
-  border-radius: 10px;
+    background: #60a5fa; /* Blue for thumb */
+    border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6; /* Darker blue on hover */
+    background: #3b82f6; /* Darker blue on hover */
+}
+
+/* Glassmorphism Styles */
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px var(--glass-shadow);
+}
+
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px var(--glass-shadow);
+}
+
+.glass-card:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--glass-shine),
+        transparent
+    );
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.glass-card:hover:before {
+    opacity: 1;
+}
+
+.glass-button {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: var(--foreground);
+    transition: all 0.3s;
+}
+
+.glass-button:hover {
+    background: var(--glass-border);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px var(--glass-shadow);
+}
+
+.glass-input {
+    background: var(--glass-bg);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: var(--foreground);
+    transition: all 0.3s;
+}
+
+.glass-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-hover);
 }

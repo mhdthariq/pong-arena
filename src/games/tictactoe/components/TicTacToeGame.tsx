@@ -20,6 +20,8 @@ import {
   resetGame,
   getRecommendedMove,
 } from "../lib/gameLogic";
+import GlassmorphicCard from "../../../shared/components/GlassmorphicCard";
+import ModernButton from "../../../shared/components/ModernButton";
 
 interface TicTacToeGameProps {
   initialGameState?: TicTacToeGameState;
@@ -142,20 +144,20 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
   const getGameStatus = () => {
     if (gameState.isGameOver) {
       if (gameState.winner === "draw") {
-        return "Game ended in a draw!";
+        return "Game ended in a draw! 🤝";
       } else if (gameState.winner) {
-        return `Player ${gameState.winner} wins!`;
+        return `Player ${gameState.winner} wins! 🏆`;
       }
     }
 
     if (isAIThinking) {
-      return "AI is thinking...";
+      return "AI is thinking... 🤔";
     }
 
     // Show time remaining if time limit is enabled
     if (gameState.settings.timeLimit && gameState.moveTimeRemaining !== null) {
       const secondsRemaining = Math.ceil(gameState.moveTimeRemaining / 1000);
-      return `${gameState.currentPlayer}'s Turn (${secondsRemaining}s)`;
+      return `${gameState.currentPlayer}'s Turn (${secondsRemaining}s) ⏱️`;
     }
 
     return `${gameState.currentPlayer}'s Turn`;
@@ -218,20 +220,20 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
   const getCellClassName = (row: number, col: number) => {
     const cell = gameState.board[row][col];
     let className =
-      "w-full h-full flex items-center justify-center text-5xl sm:text-6xl md:text-7xl lg:text-7xl font-bold transition-all duration-200";
+      "w-full h-full flex items-center justify-center text-5xl sm:text-6xl md:text-7xl lg:text-7xl font-bold transition-all duration-300";
 
-    // Add border styles - adapt to board size
+    // Add border styles - adapt to board size with glassmorphism
     const size = gameState.settings.boardSize;
-    if (row < size - 1) className += " border-b-[8px] border-gray-500";
-    if (col < size - 1) className += " border-r-[8px] border-gray-500";
+    if (row < size - 1) className += " border-b-[2px] border-white/10";
+    if (col < size - 1) className += " border-r-[2px] border-white/10";
 
     // Add player color with hover effects
     if (cell === "X") {
-      className += " text-blue-500";
+      className += " text-blue-400 drop-shadow-glow";
     } else if (cell === "O") {
-      className += " text-red-500";
+      className += " text-red-400 drop-shadow-glow";
     } else {
-      className += " hover:bg-gray-800/70 cursor-pointer";
+      className += " hover:bg-white/10 cursor-pointer";
 
       // Highlight recommended move
       if (
@@ -240,7 +242,7 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
         moveRecommendation.row === row &&
         moveRecommendation.col === col
       ) {
-        className += " bg-green-800/40 animate-pulse";
+        className += " bg-green-500/20 animate-pulse-slow";
       }
     }
 
@@ -249,7 +251,7 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
       gameState.winningLine &&
       gameState.winningLine.some(([r, c]) => r === row && c === col)
     ) {
-      className += " bg-green-900/50";
+      className += " bg-green-500/30 animate-pulse-slow";
     }
 
     return className;
@@ -265,34 +267,55 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
   return (
     <div className="flex flex-col items-center justify-center w-full mx-auto">
       {/* Game status */}
-      <div className="mb-4 text-2xl sm:text-3xl font-bold text-gray-200">
+      <div className="mb-4 text-2xl sm:text-3xl font-bold text-white drop-shadow-glow">
         {getGameStatus()}
       </div>
 
       {/* Game mode and settings info */}
-      <div className="mb-6 flex flex-wrap justify-center gap-4 text-sm text-gray-300">
-        <div>
+      <div className="mb-6 flex flex-wrap justify-center gap-4 text-sm text-blue-200">
+        <div className="px-3 py-1.5 glass rounded-full flex items-center">
+          <span className="w-2 h-2 rounded-full bg-blue-400 mr-2"></span>
           Mode:{" "}
-          {gameState.settings.gameMode.charAt(0).toUpperCase() +
-            gameState.settings.gameMode.slice(1)}
+          <span className="ml-1 font-medium">
+            {gameState.settings.gameMode.charAt(0).toUpperCase() +
+              gameState.settings.gameMode.slice(1)}
+          </span>
         </div>
-        <div>
-          Board: {gameState.settings.boardSize}x{gameState.settings.boardSize}
+        <div className="px-3 py-1.5 glass rounded-full flex items-center">
+          <span className="w-2 h-2 rounded-full bg-purple-400 mr-2"></span>
+          Board:{" "}
+          <span className="ml-1 font-medium">
+            {gameState.settings.boardSize}x{gameState.settings.boardSize}
+          </span>
         </div>
         {isAIGame && (
-          <div>
+          <div className="px-3 py-1.5 glass rounded-full flex items-center">
+            <span className="w-2 h-2 rounded-full bg-green-400 mr-2"></span>
             AI:{" "}
-            {gameState.settings.aiDifficulty
-              ? gameState.settings.aiDifficulty.charAt(0).toUpperCase() +
-                gameState.settings.aiDifficulty.slice(1)
-              : "Medium"}
+            <span className="ml-1 font-medium">
+              {gameState.settings.aiDifficulty
+                ? gameState.settings.aiDifficulty.charAt(0).toUpperCase() +
+                  gameState.settings.aiDifficulty.slice(1)
+                : "Medium"}
+            </span>
           </div>
         )}
       </div>
 
       {/* Game board */}
-      <div className="w-[min(90vmin,500px)] h-[min(90vmin,500px)] mx-auto bg-gray-900 rounded-xl overflow-hidden shadow-xl border-4 border-gray-700">
-        <div className="grid w-full h-full" style={gridTemplateStyle}>
+      <GlassmorphicCard
+        className="w-[min(90vmin,500px)] h-[min(90vmin,500px)] mx-auto overflow-hidden p-0 backdrop-blur-xl relative"
+        blur="lg"
+        opacity="medium"
+        shadow="xl"
+        rounded="xl"
+        padding="none"
+        border={true}
+      >
+        <div
+          className="grid w-full h-full relative z-10"
+          style={gridTemplateStyle}
+        >
           {gameState.board.map((row, rowIndex) =>
             row.map((cell, colIndex) => (
               <div
@@ -305,58 +328,153 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
             )),
           )}
         </div>
-      </div>
+
+        {/* Add subtle glow effect behind the board */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 z-0"></div>
+      </GlassmorphicCard>
 
       {/* Move recommendation display */}
       {showRecommendation && moveRecommendation && (
-        <div className="mt-4 text-center p-2 bg-gray-800/50 rounded-lg">
-          <p className="text-green-400 font-semibold">
+        <GlassmorphicCard
+          className="mt-4 text-center animate-fade-in"
+          blur="md"
+          opacity="medium"
+          padding="md"
+          rounded="lg"
+        >
+          <p className="text-green-400 font-semibold flex items-center justify-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                clipRule="evenodd"
+              />
+            </svg>
             Recommended move: ({moveRecommendation.row + 1},{" "}
             {moveRecommendation.col + 1})
           </p>
-          <p className="text-sm text-gray-300">
+          <p className="text-sm text-blue-200 mt-1">
             {moveRecommendation.reasoning} (Confidence:{" "}
             {moveRecommendation.confidence}%)
           </p>
-        </div>
+        </GlassmorphicCard>
       )}
 
       {/* Game controls */}
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <button
+        <ModernButton
+          variant="glass"
+          size="md"
+          rounded="lg"
           onClick={handleUndo}
-          disabled={gameState.moveHistory.length === 0}
-          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          isDisabled={gameState.moveHistory.length === 0}
+          leftIcon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          }
         >
           Undo
-        </button>
-        <button
+        </ModernButton>
+        <ModernButton
+          variant="glass"
+          size="md"
+          rounded="lg"
           onClick={handleRedo}
-          disabled={gameState.historyIndex >= gameState.boardHistory.length - 1}
-          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          isDisabled={
+            gameState.historyIndex >= gameState.boardHistory.length - 1
+          }
+          leftIcon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          }
         >
           Redo
-        </button>
-        <button
+        </ModernButton>
+        <ModernButton
+          variant="danger"
+          size="md"
+          rounded="lg"
           onClick={handleReset}
-          className="px-4 py-2 bg-red-700 hover:bg-red-600 text-white rounded-lg"
+          leftIcon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                clipRule="evenodd"
+              />
+            </svg>
+          }
         >
           Reset
-        </button>
-        <button
+        </ModernButton>
+        <ModernButton
+          variant="success"
+          size="md"
+          rounded="lg"
           onClick={getHint}
-          disabled={
+          isDisabled={
             gameState.isGameOver ||
             (isAIGame && gameState.currentPlayer !== playerSymbol)
           }
-          className="px-4 py-2 bg-green-700 hover:bg-green-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          leftIcon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clipRule="evenodd"
+              />
+            </svg>
+          }
         >
           Hint
-        </button>
+        </ModernButton>
       </div>
 
       {/* Move history display */}
-      <MoveHistory moves={gameState.moveHistory} maxHeight="200px" />
+      <GlassmorphicCard
+        className="mt-6 w-full max-w-md"
+        blur="sm"
+        opacity="low"
+        padding="md"
+        rounded="lg"
+      >
+        <MoveHistory moves={gameState.moveHistory} maxHeight="200px" />
+      </GlassmorphicCard>
     </div>
   );
 };
