@@ -11,7 +11,6 @@ import {
   createTicTacToeGame,
   joinTicTacToeGameByCode,
 } from "../../../../../shared/firebase/tictactoeService";
-import Footer from "../../../../../shared/components/Footer";
 import ModernLayout from "../../../../../shared/components/ModernLayout";
 import GlassmorphicCard from "../../../../../shared/components/GlassmorphicCard";
 import ModernButton from "../../../../../shared/components/ModernButton";
@@ -347,8 +346,6 @@ export default function TicTacToeMultiPlayerLobbyPage() {
           </GlassmorphicCard>
         </div>
       </main>
-
-      <Footer />
     </ModernLayout>
   );
 }

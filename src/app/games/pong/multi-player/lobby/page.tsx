@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Footer from "../../../../../shared/components/Footer";
+import ModernLayout from "../../../../../shared/components/ModernLayout";
+import GlassmorphicCard from "../../../../../shared/components/GlassmorphicCard";
+import ModernButton from "../../../../../shared/components/ModernButton";
 import {
   getFirebaseClient,
   setupFirebaseAuthListener,
@@ -35,6 +37,9 @@ export default function PongMultiPlayerLobby() {
     showCancel?: boolean;
     onCancel?: () => void;
   }>({ message: "", onConfirm: () => {} });
+  const [activeTab, setActiveTab] = useState<"create" | "join" | "browse">(
+    "create",
+  );
 
   const router = useRouter();
   const { db } = getFirebaseClient();
@@ -57,7 +62,7 @@ export default function PongMultiPlayerLobby() {
     const unsubAuth = setupFirebaseAuthListener(
       setUserId,
       setIsAuthReady,
-      setMessageBox
+      setMessageBox,
     );
 
     return () => unsubAuth();
@@ -67,6 +72,9 @@ export default function PongMultiPlayerLobby() {
   useEffect(() => {
     if (isAuthReady && db) {
       fetchActiveGames();
+      // Set up periodic refresh
+      const interval = setInterval(fetchActiveGames, 10000);
+      return () => clearInterval(interval);
     }
   }, [isAuthReady, db, fetchActiveGames]);
 
@@ -153,7 +161,7 @@ export default function PongMultiPlayerLobby() {
       const gameId = await joinGameByCode(
         db,
         gameCode.trim().toUpperCase(),
-        userId
+        userId,
       );
 
       if (!gameId) {
@@ -173,116 +181,391 @@ export default function PongMultiPlayerLobby() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-gray-900 text-white">
-      <main className="flex-grow flex flex-col p-6">
-        <div className="max-w-4xl mx-auto w-full">
-          <header className="mb-8">
-            <Link
-              href="/"
-              className="text-xl font-bold text-white hover:text-blue-400 transition-colors"
-            >
-              ← Back to Game Arena
-            </Link>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mt-4">
-              Pong Multiplayer Lobby
-            </h1>
-          </header>
-
-          {errorMessage && (
-            <div className="bg-red-500 bg-opacity-20 border border-red-500 rounded-lg p-4 mb-6 text-center">
-              {errorMessage}
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Create or Join Game Section */}
-            <div className="bg-gray-800 rounded-xl p-6">
-              <h2 className="text-2xl font-bold mb-4">Create a New Game</h2>
-              <p className="text-gray-300 mb-6">
-                Start a new multiplayer game and invite a friend to join.
-              </p>
-              <button
-                onClick={handleCreateGame}
-                disabled={isLoading || !isAuthReady}
-                className="w-full py-3 px-4 rounded-lg font-medium bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+    <ModernLayout
+      variant="gaming"
+      withBackground={true}
+      backgroundParticleColor="#3b82f6"
+      backgroundParticleCount={180}
+      maxWidth="full"
+      withPadding={false}
+      className="bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-indigo-900/20"
+    >
+      {/* Enhanced Header */}
+      <div className="relative z-20 w-full">
+        {/* Navigation */}
+        <nav className="flex items-center justify-between p-6 lg:p-8">
+          <Link href="/" className="group flex items-center space-x-3">
+            <div className="p-2 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 group-hover:bg-white/20 transition-all duration-300">
+              <svg
+                className="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                {isLoading ? "Creating Game..." : "Create Game"}
-              </button>
-
-              <div className="my-6 border-t border-gray-700"></div>
-
-              <h2 className="text-2xl font-bold mb-4">Join by Game Code</h2>
-              <p className="text-gray-300 mb-4">
-                Enter a code shared by another player to join their game.
-              </p>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={gameCode}
-                  onChange={(e) => setGameCode(e.target.value.toUpperCase())}
-                  placeholder="Enter game code"
-                  maxLength={6}
-                  className="flex-1 bg-gray-700 rounded-lg px-4 py-2 text-lg uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
                 />
-                <button
-                  onClick={handleJoinByCode}
-                  disabled={isLoading || !gameCode || !isAuthReady}
-                  className="py-2 px-6 rounded-lg font-medium bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Join
-                </button>
-              </div>
+              </svg>
             </div>
+            <span className="text-lg font-medium text-white/90 group-hover:text-white transition-colors duration-300">
+              Back to Arena
+            </span>
+          </Link>
 
-            {/* Available Games Section */}
-            <div className="bg-gray-800 rounded-xl p-6">
-              <h2 className="text-2xl font-bold mb-4">Available Games</h2>
-              <p className="text-gray-300 mb-4">
-                Join an existing game from the list below.
-              </p>
+          <div className="flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-2 text-sm text-gray-300">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              <span>{isAuthReady ? "Connected" : "Connecting..."}</span>
+            </div>
+          </div>
+        </nav>
 
-              <div className="mt-4 space-y-3 max-h-96 overflow-y-auto">
-                {activeGames.length > 0 ? (
-                  activeGames.map((game) => (
-                    <div
-                      key={game.id}
-                      className="bg-gray-700 rounded-lg p-4 flex justify-between items-center"
-                    >
+        {/* Hero Section */}
+        <div className="text-center px-6 pb-8 lg:pb-12">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+            <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-600 bg-clip-text text-transparent">
+              MULTIPLAYER LOBBY
+            </span>
+          </h1>
+          <p className="text-lg lg:text-xl text-blue-200/90 mb-8 max-w-2xl mx-auto">
+            Challenge players worldwide or create your own arena for epic Pong
+            battles
+          </p>
+
+          {/* Connection Status */}
+          <div className="flex justify-center items-center space-x-4 mb-8">
+            <GlassmorphicCard className="px-4 py-2" padding="none">
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${isAuthReady ? "bg-green-400 animate-pulse" : "bg-yellow-400 animate-bounce"}`}
+                />
+                <span className="text-sm text-white">
+                  {isAuthReady
+                    ? `Connected as Player ${userId?.slice(0, 8)}...`
+                    : "Connecting to server..."}
+                </span>
+              </div>
+            </GlassmorphicCard>
+          </div>
+        </div>
+      </div>
+
+      {/* Error Display */}
+      {errorMessage && (
+        <div className="px-6 mb-6">
+          <div className="max-w-4xl mx-auto">
+            <GlassmorphicCard className="border-red-500/50 bg-red-500/10">
+              <div className="flex items-center space-x-3">
+                <div className="text-red-400 text-xl">⚠️</div>
+                <div>
+                  <h4 className="text-red-400 font-semibold">Error</h4>
+                  <p className="text-red-300">{errorMessage}</p>
+                </div>
+                <ModernButton
+                  variant="danger"
+                  size="sm"
+                  onClick={() => setErrorMessage("")}
+                  className="ml-auto"
+                >
+                  Dismiss
+                </ModernButton>
+              </div>
+            </GlassmorphicCard>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div className="px-6 pb-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Tab Navigation */}
+          <div className="flex justify-center mb-8">
+            <GlassmorphicCard className="p-2" padding="none">
+              <div className="flex space-x-2">
+                {[
+                  { id: "create", label: "Create Game", icon: "🎮" },
+                  { id: "join", label: "Join by Code", icon: "🔗" },
+                  { id: "browse", label: "Browse Games", icon: "🔍" },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() =>
+                      setActiveTab(tab.id as "create" | "join" | "browse")
+                    }
+                    className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
+                      activeTab === tab.id
+                        ? "bg-blue-500 text-white shadow-lg"
+                        : "text-gray-300 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    <span className="mr-2">{tab.icon}</span>
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </GlassmorphicCard>
+          </div>
+
+          {/* Tab Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content Area */}
+            <div className="lg:col-span-2">
+              {activeTab === "create" && (
+                <GlassmorphicCard className="animate-fade-in">
+                  <div className="text-center">
+                    <div className="text-6xl mb-6">🎮</div>
+                    <h2 className="text-3xl font-bold text-white mb-4">
+                      Create Your Arena
+                    </h2>
+                    <p className="text-gray-300 mb-8 max-w-md mx-auto">
+                      Start a new multiplayer game and share the code with
+                      friends or wait for random players to join your battle.
+                    </p>
+
+                    <div className="space-y-4 max-w-sm mx-auto">
+                      <ModernButton
+                        onClick={handleCreateGame}
+                        disabled={isLoading || !isAuthReady}
+                        variant="primary"
+                        size="lg"
+                        fullWidth
+                        isLoading={isLoading}
+                        loadingText="Creating Arena..."
+                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                      >
+                        🚀 Create Game Arena
+                      </ModernButton>
+
+                      <div className="text-sm text-gray-400">
+                        Your game will be visible to other players immediately
+                      </div>
+                    </div>
+                  </div>
+                </GlassmorphicCard>
+              )}
+
+              {activeTab === "join" && (
+                <GlassmorphicCard className="animate-fade-in">
+                  <div className="text-center">
+                    <div className="text-6xl mb-6">🔗</div>
+                    <h2 className="text-3xl font-bold text-white mb-4">
+                      Join by Code
+                    </h2>
+                    <p className="text-gray-300 mb-8 max-w-md mx-auto">
+                      Enter a 6-character game code shared by another player to
+                      join their private arena.
+                    </p>
+
+                    <div className="space-y-6 max-w-sm mx-auto">
                       <div>
-                        <p className="font-medium">
-                          Game Code: {game.data.gameCode}
+                        <input
+                          type="text"
+                          value={gameCode}
+                          onChange={(e) =>
+                            setGameCode(e.target.value.toUpperCase())
+                          }
+                          placeholder="Enter game code"
+                          maxLength={6}
+                          className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-4 py-4 text-2xl text-center uppercase font-mono text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                        />
+                      </div>
+
+                      <ModernButton
+                        onClick={handleJoinByCode}
+                        disabled={isLoading || !gameCode || !isAuthReady}
+                        variant="info"
+                        size="lg"
+                        fullWidth
+                        isLoading={isLoading}
+                        loadingText="Joining..."
+                        className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                      >
+                        🎯 Join Arena
+                      </ModernButton>
+                    </div>
+                  </div>
+                </GlassmorphicCard>
+              )}
+
+              {activeTab === "browse" && (
+                <GlassmorphicCard className="animate-fade-in">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-white">
+                      🔍 Available Arenas
+                    </h2>
+                    <ModernButton
+                      onClick={fetchActiveGames}
+                      disabled={isLoading || !isAuthReady}
+                      variant="secondary"
+                      size="sm"
+                    >
+                      🔄 Refresh
+                    </ModernButton>
+                  </div>
+
+                  <div className="space-y-4 max-h-96 overflow-y-auto custom-scrollbar">
+                    {activeGames.length > 0 ? (
+                      activeGames.map((game) => (
+                        <div
+                          key={game.id}
+                          className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-all duration-300 group"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3 mb-2">
+                                <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
+                                <span className="text-lg font-semibold text-white">
+                                  Arena {game.data.gameCode}
+                                </span>
+                              </div>
+                              <div className="text-sm text-gray-300">
+                                Host: Player {game.data.player1Id.slice(0, 8)}
+                                ...
+                              </div>
+                              <div className="text-xs text-gray-400 mt-1">
+                                Waiting for challenger
+                              </div>
+                            </div>
+                            <ModernButton
+                              onClick={() =>
+                                handleJoinGame(game.data.gameCode || "")
+                              }
+                              disabled={isLoading || !isAuthReady}
+                              variant="primary"
+                              size="sm"
+                              className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 group-hover:scale-105 transition-transform duration-300"
+                            >
+                              ⚔️ Challenge
+                            </ModernButton>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-12">
+                        <div className="text-6xl mb-4 opacity-50">🎮</div>
+                        <p className="text-gray-400 mb-4">
+                          No active arenas found
                         </p>
-                        <p className="text-sm text-gray-400">
-                          Created by Player {game.data.player1Id.slice(0, 8)}...
+                        <p className="text-sm text-gray-500">
+                          Be the first to create a game!
                         </p>
                       </div>
-                      <button
-                        onClick={() => handleJoinGame(game.data.gameCode || "")}
-                        disabled={isLoading || !isAuthReady}
-                        className="py-2 px-4 rounded-lg font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Join
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-center text-gray-400 py-8">
-                    No active games available. Create a new game!
-                  </p>
-                )}
-              </div>
+                    )}
+                  </div>
+                </GlassmorphicCard>
+              )}
+            </div>
 
-              <button
-                onClick={fetchActiveGames}
-                disabled={isLoading || !isAuthReady}
-                className="mt-4 w-full py-2 px-4 rounded-lg font-medium bg-gray-700 hover:bg-gray-600 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Refresh Game List
-              </button>
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Game Rules */}
+              <GlassmorphicCard>
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                  <span className="mr-2">📋</span>
+                  Game Rules
+                </h3>
+                <div className="space-y-3 text-sm text-gray-300">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-blue-400 mt-0.5">•</span>
+                    <span>First player to reach 10 points wins</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-blue-400 mt-0.5">•</span>
+                    <span>Both players must be ready to start</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-blue-400 mt-0.5">•</span>
+                    <span>Ball speed increases with each rally</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-blue-400 mt-0.5">•</span>
+                    <span>Use ↑/↓ or W/S to control your paddle</span>
+                  </div>
+                </div>
+              </GlassmorphicCard>
+
+              {/* Statistics */}
+              <GlassmorphicCard>
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                  <span className="mr-2">📊</span>
+                  Live Stats
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300">Active Games:</span>
+                    <span className="text-green-400 font-bold">
+                      {activeGames.length}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300">Players Online:</span>
+                    <span className="text-blue-400 font-bold">
+                      {activeGames.length + 1}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300">Connection:</span>
+                    <span
+                      className={`font-bold ${isAuthReady ? "text-green-400" : "text-yellow-400"}`}
+                    >
+                      {isAuthReady ? "Stable" : "Connecting"}
+                    </span>
+                  </div>
+                </div>
+              </GlassmorphicCard>
+
+              {/* Quick Actions */}
+              <GlassmorphicCard>
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                  <span className="mr-2">⚡</span>
+                  Quick Actions
+                </h3>
+                <div className="space-y-3">
+                  <Link
+                    href="/games/pong/single-player-modern"
+                    className="block"
+                  >
+                    <ModernButton
+                      variant="secondary"
+                      fullWidth
+                      size="sm"
+                      className="justify-start"
+                    >
+                      🤖 Practice vs AI
+                    </ModernButton>
+                  </Link>
+                  <Link href="/games/pong/single-player" className="block">
+                    <ModernButton
+                      variant="secondary"
+                      fullWidth
+                      size="sm"
+                      className="justify-start"
+                    >
+                      🕹️ Classic Pong
+                    </ModernButton>
+                  </Link>
+                  <Link
+                    href="/games/tictactoe/multi-player/lobby"
+                    className="block"
+                  >
+                    <ModernButton
+                      variant="secondary"
+                      fullWidth
+                      size="sm"
+                      className="justify-start"
+                    >
+                      ⭕ Tic-Tac-Toe
+                    </ModernButton>
+                  </Link>
+                </div>
+              </GlassmorphicCard>
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       {messageBox.message && (
         <MessageBox
@@ -292,8 +575,6 @@ export default function PongMultiPlayerLobby() {
           showCancel={messageBox.showCancel}
         />
       )}
-
-      <Footer />
-    </div>
+    </ModernLayout>
   );
 }

@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { TicTacToeGame, TicTacToeSettings } from "../../../../games/tictactoe";
-import Footer from "../../../../shared/components/Footer";
 import {
   TicTacToePlayer,
   GameSettings,
@@ -435,8 +434,6 @@ export default function TicTacToeSinglePlayerPage() {
           </div>
         )}
       </main>
-
-      <Footer />
     </ModernLayout>
   );
 }

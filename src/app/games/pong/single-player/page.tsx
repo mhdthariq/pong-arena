@@ -3,10 +3,6 @@
 import React from "react";
 import Link from "next/link";
 
-import Footer from "../../../../shared/components/Footer";
-
-// No longer need PhaserGame import since this page just shows selection
-
 const PongSinglePlayerPage = () => {
   return (
     <div className="min-h-screen w-full flex flex-col bg-gray-900 text-white">
@@ -113,7 +109,6 @@ const PongSinglePlayerPage = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };
