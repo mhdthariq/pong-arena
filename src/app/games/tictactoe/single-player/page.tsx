@@ -82,11 +82,11 @@ export default function TicTacToeSinglePlayerPage() {
       backgroundParticleColor={themeColor}
       backgroundParticleCount={150}
       withMaxWidth={true}
-      maxWidth="xl"
-      withVerticalCenter={true}
+      maxWidth="2xl"
+      withVerticalCenter={false}
     >
       {/* Navigation */}
-      <header className="w-full max-w-6xl mx-auto px-4 py-6 z-10 relative animate-fade-in">
+      <header className="w-full max-w-7xl mx-auto px-4 py-6 z-10 relative animate-fade-in">
         <nav className="flex items-center justify-between">
           <Link
             href="/"
@@ -109,24 +109,24 @@ export default function TicTacToeSinglePlayerPage() {
             <span className="drop-shadow-glow">Game Arena</span>
           </Link>
         </nav>
-        <h1 className="text-4xl sm:text-5xl font-bold text-center mt-8 mb-6 text-white drop-shadow-glow animate-float">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-center mt-8 mb-8 lg:mb-12 text-white drop-shadow-glow animate-float">
           Tic-Tac-Toe
-          <span className="block text-lg sm:text-xl mt-2 font-normal text-blue-300 animate-pulse-slow">
+          <span className="block text-lg sm:text-xl lg:text-2xl mt-2 font-normal text-blue-300 animate-pulse-slow">
             Enhanced Edition
           </span>
         </h1>
       </header>
 
-      <main className="w-full flex-grow z-10 relative animate-slide-up">
+      <main className="w-full flex-grow z-10 relative animate-slide-up px-4">
         {!gameStarted ? (
-          <>
+          <div className="max-w-7xl mx-auto space-y-8">
             <GlassmorphicCard
               blur="lg"
               opacity="medium"
               rounded="xl"
               shadow="xl"
               padding="lg"
-              className="max-w-7xl mx-auto"
+              className="w-full"
             >
               <TicTacToeSettings
                 initialSettings={gameSettings}
@@ -141,7 +141,7 @@ export default function TicTacToeSinglePlayerPage() {
               rounded="xl"
               shadow="xl"
               padding="lg"
-              className="max-w-7xl mx-auto mt-6"
+              className="w-full"
             >
               <div className="flex items-center mb-6">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mr-3">
@@ -168,7 +168,7 @@ export default function TicTacToeSinglePlayerPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 lg:gap-6">
                 {(
                   [
                     "balanced",
@@ -305,131 +305,134 @@ export default function TicTacToeSinglePlayerPage() {
                 ))}
               </div>
             </GlassmorphicCard>
-          </>
+          </div>
         ) : (
-          <GlassmorphicCard
-            blur="lg"
-            opacity="medium"
-            rounded="xl"
-            shadow="xl"
-            padding="lg"
-            className="max-w-4xl mx-auto"
-          >
-            {gameResult && gameResult.winner ? (
-              <div className="w-full text-center mb-8 animate-slide-up">
-                <h2
-                  className={`text-4xl font-bold mb-4 animate-pulse-slow ${
-                    gameResult.winner === "X" &&
+          <div className="max-w-7xl mx-auto">
+            <GlassmorphicCard
+              blur="lg"
+              opacity="medium"
+              rounded="xl"
+              shadow="xl"
+              padding="lg"
+              className="w-full"
+            >
+              {gameResult && gameResult.winner ? (
+                <div className="w-full text-center mb-8 lg:mb-12 animate-slide-up">
+                  <h2
+                    className={`text-4xl lg:text-5xl font-bold mb-6 animate-pulse-slow ${
+                      gameResult.winner === "X" &&
+                      gameSettings.firstPlayer === "X"
+                        ? "text-green-400"
+                        : gameResult.winner === "O" &&
+                            gameSettings.firstPlayer === "O"
+                          ? "text-green-400"
+                          : gameResult.winner === "draw"
+                            ? "text-yellow-400"
+                            : "text-red-400"
+                    }`}
+                  >
+                    {gameResult.winner === "X" &&
                     gameSettings.firstPlayer === "X"
-                      ? "text-green-400"
+                      ? "🎉 You Win! 🎉"
                       : gameResult.winner === "O" &&
                           gameSettings.firstPlayer === "O"
-                        ? "text-green-400"
+                        ? "🎉 You Win! 🎉"
                         : gameResult.winner === "draw"
-                          ? "text-yellow-400"
-                          : "text-red-400"
-                  }`}
-                >
-                  {gameResult.winner === "X" && gameSettings.firstPlayer === "X"
-                    ? "🎉 You Win! 🎉"
-                    : gameResult.winner === "O" &&
-                        gameSettings.firstPlayer === "O"
-                      ? "🎉 You Win! 🎉"
-                      : gameResult.winner === "draw"
-                        ? "🤝 Game Draw! 🤝"
-                        : "😢 AI Wins! 😢"}
-                </h2>
+                          ? "🤝 Game Draw! 🤝"
+                          : "😢 AI Wins! 😢"}
+                  </h2>
 
-                <div className="flex flex-wrap justify-center gap-4 mt-8">
+                  <div className="flex flex-wrap justify-center gap-4 lg:gap-6 mt-8 lg:mt-12">
+                    <ModernButton
+                      variant="glass"
+                      size="lg"
+                      rounded="lg"
+                      onClick={playAgain}
+                      leftIcon={
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 17l-5-5m0 0l5-5m-5 5h12"
+                          />
+                        </svg>
+                      }
+                    >
+                      Change Settings
+                    </ModernButton>
+
+                    <ModernButton
+                      variant="success"
+                      size="lg"
+                      rounded="lg"
+                      onClick={() => {
+                        // Start a new game with the same settings
+                        const newGameState = initializeGameState(gameSettings);
+                        setGameState(newGameState);
+                        setGameResult(null);
+                      }}
+                      leftIcon={
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                          />
+                        </svg>
+                      }
+                    >
+                      Play Again
+                    </ModernButton>
+                  </div>
+                </div>
+              ) : null}
+
+              {gameState && (
+                <div className="transition-all duration-500 animate-fade-in">
+                  <TicTacToeGame
+                    initialGameState={gameState}
+                    customSettings={gameSettings}
+                    playerSymbol={
+                      gameSettings.firstPlayer === "random"
+                        ? "X"
+                        : gameSettings.firstPlayer
+                    }
+                    isAIGame={true}
+                    aiPersonality={aiPersonality}
+                    onGameEnd={handleGameEnd}
+                  />
+                </div>
+              )}
+
+              {/* Return to settings button */}
+              {!gameResult?.winner && (
+                <div className="text-center mt-8 lg:mt-12">
                   <ModernButton
                     variant="glass"
-                    size="lg"
+                    size="md"
                     rounded="lg"
                     onClick={playAgain}
-                    leftIcon={
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M11 17l-5-5m0 0l5-5m-5 5h12"
-                        />
-                      </svg>
-                    }
                   >
-                    Change Settings
-                  </ModernButton>
-
-                  <ModernButton
-                    variant="success"
-                    size="lg"
-                    rounded="lg"
-                    onClick={() => {
-                      // Start a new game with the same settings
-                      const newGameState = initializeGameState(gameSettings);
-                      setGameState(newGameState);
-                      setGameResult(null);
-                    }}
-                    leftIcon={
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                        />
-                      </svg>
-                    }
-                  >
-                    Play Again
+                    Back to Settings
                   </ModernButton>
                 </div>
-              </div>
-            ) : null}
-
-            {gameState && (
-              <div className="transition-all duration-500 animate-fade-in">
-                <TicTacToeGame
-                  initialGameState={gameState}
-                  customSettings={gameSettings}
-                  playerSymbol={
-                    gameSettings.firstPlayer === "random"
-                      ? "X"
-                      : gameSettings.firstPlayer
-                  }
-                  isAIGame={true}
-                  aiPersonality={aiPersonality}
-                  onGameEnd={handleGameEnd}
-                />
-              </div>
-            )}
-
-            {/* Return to settings button */}
-            {!gameResult?.winner && (
-              <div className="text-center mt-8">
-                <ModernButton
-                  variant="glass"
-                  size="md"
-                  rounded="lg"
-                  onClick={playAgain}
-                >
-                  Back to Settings
-                </ModernButton>
-              </div>
-            )}
-          </GlassmorphicCard>
+              )}
+            </GlassmorphicCard>
+          </div>
         )}
       </main>
 

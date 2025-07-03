@@ -46,7 +46,9 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
   }[maxWidth];
 
   // Padding
-  const paddingClass = withPadding ? "px-4 py-8 md:px-6 md:py-12 lg:px-8" : "";
+  const paddingClass = withPadding
+    ? "px-4 py-8 md:px-6 md:py-12 lg:px-8 xl:px-12"
+    : "";
 
   // Gradient
   const gradientClass = withGradient
@@ -60,19 +62,21 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
 
   return (
     <div
-      className={`relative ${verticalCenterClass} ${gradientClass} ${className}`}
+      className={`relative ${verticalCenterClass} ${gradientClass} ${className} overflow-x-hidden`}
     >
       {/* Three.js background */}
       {withBackground && (
-        <ThreeJsBackground
-          particleColor={backgroundParticleColor}
-          particleCount={backgroundParticleCount}
-          interactive={interactiveBackground}
-        />
+        <div className="fixed inset-0 z-0">
+          <ThreeJsBackground
+            particleColor={backgroundParticleColor}
+            particleCount={backgroundParticleCount}
+            interactive={interactiveBackground}
+          />
+        </div>
       )}
 
       {/* Main content */}
-      <main className={`w-full z-10 ${paddingClass}`}>
+      <main className={`w-full z-10 relative ${paddingClass}`}>
         <div
           className={`${withMaxWidth ? `mx-auto ${maxWidthClasses}` : "w-full"}`}
         >

@@ -21,7 +21,8 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Prevent scrolling on the body */
+    overflow-x: hidden; /* Prevent horizontal scrolling only */
+    overflow-y: auto; /* Allow vertical scrolling */
 }
 
 /* Add drop shadow glow effect for text */
@@ -129,9 +130,10 @@ body {
         "Segoe UI",
         Roboto,
         sans-serif;
-    /* Ensure body takes full height and prevents default scrollbar from conflicting with custom */
+    /* Ensure body takes full height and allow proper scrolling */
     min-height: 100vh;
     overflow-x: hidden; /* Prevent horizontal scrolling */
+    overflow-y: auto; /* Allow vertical scrolling */
     position: relative;
     background-image:
         radial-gradient(
@@ -144,6 +146,34 @@ body {
             rgba(126, 34, 206, 0.1),
             transparent 40%
         );
+    /* Apply custom scrollbar globally */
+    scrollbar-width: thin;
+    scrollbar-color: #60a5fa #374151;
+}
+
+/* Apply custom scrollbar to all scrollable elements */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #60a5fa #374151;
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+    background: #374151;
+    border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: #60a5fa;
+    border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: #3b82f6;
 }
 
 /* Custom scrollbar styles */

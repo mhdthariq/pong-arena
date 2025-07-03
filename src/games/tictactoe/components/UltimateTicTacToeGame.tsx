@@ -198,17 +198,17 @@ const UltimateTicTacToeGame: React.FC<UltimateTicTacToeGameProps> = ({
   ) => {
     const cell = gameState.subBoards[mainRow][mainCol][subRow][subCol];
     let className =
-      "w-full h-full flex items-center justify-center text-2xl sm:text-3xl font-bold transition-all duration-200";
+      "w-full h-full flex items-center justify-center text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold transition-all duration-200";
 
     // Add border styles
-    if (subRow < 2) className += " border-b-2 border-gray-500";
-    if (subCol < 2) className += " border-r-2 border-gray-500";
+    if (subRow < 2) className += " border-b-2 border-gray-400/50";
+    if (subCol < 2) className += " border-r-2 border-gray-400/50";
 
     // Add player color with hover effects
     if (cell === "X") {
-      className += " text-blue-500";
+      className += " text-blue-400 drop-shadow-glow";
     } else if (cell === "O") {
-      className += " text-red-500";
+      className += " text-red-400 drop-shadow-glow";
     } else {
       // Only make the cell interactive if:
       // 1. The game is not over
@@ -222,9 +222,9 @@ const UltimateTicTacToeGame: React.FC<UltimateTicTacToeGameProps> = ({
             gameState.nextBoardToPlay.col === mainCol));
 
       if (isBoardActive) {
-        className += " hover:bg-gray-800/70 cursor-pointer";
+        className += " hover:bg-white/10 cursor-pointer";
       } else {
-        className += " cursor-default";
+        className += " cursor-default opacity-60";
       }
     }
 
@@ -232,15 +232,15 @@ const UltimateTicTacToeGame: React.FC<UltimateTicTacToeGameProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full mx-auto">
+    <div className="flex flex-col items-center justify-center w-full max-w-7xl mx-auto px-4">
       {/* Game status */}
-      <div className="mb-4 text-2xl sm:text-3xl font-bold text-gray-200">
+      <div className="mb-6 text-2xl sm:text-3xl lg:text-4xl font-bold text-white drop-shadow-glow text-center">
         {getGameStatus()}
       </div>
 
       {/* Ultimate TicTacToe board */}
-      <div className="w-[min(95vmin,800px)] h-[min(95vmin,800px)] mx-auto bg-gray-900 rounded-xl overflow-hidden shadow-xl border-4 border-gray-700 p-2">
-        <div className="grid grid-cols-3 grid-rows-3 gap-2 w-full h-full">
+      <div className="w-[min(95vmin,600px)] h-[min(95vmin,600px)] lg:w-[700px] lg:h-[700px] xl:w-[800px] xl:h-[800px] mx-auto bg-gray-900/80 backdrop-blur-lg rounded-xl overflow-hidden shadow-2xl border-4 border-gray-600/50 p-3 lg:p-4">
+        <div className="grid grid-cols-3 grid-rows-3 gap-3 lg:gap-4 w-full h-full">
           {/* Main 3x3 grid */}
           {Array.from({ length: 3 }, (_, mainRow) =>
             Array.from({ length: 3 }, (_, mainCol) => (
@@ -255,14 +255,14 @@ const UltimateTicTacToeGame: React.FC<UltimateTicTacToeGameProps> = ({
               >
                 {/* Show board winner as an overlay */}
                 {gameState.mainBoard[mainRow][mainCol] && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-10 rounded-lg">
                     <span
-                      className={`text-6xl font-bold ${
+                      className={`text-4xl lg:text-5xl xl:text-6xl font-bold drop-shadow-glow ${
                         gameState.mainBoard[mainRow][mainCol] === "X"
-                          ? "text-blue-500"
+                          ? "text-blue-400"
                           : gameState.mainBoard[mainRow][mainCol] === "O"
-                            ? "text-red-500"
-                            : "text-yellow-500"
+                            ? "text-red-400"
+                            : "text-yellow-400"
                       }`}
                     >
                       {gameState.mainBoard[mainRow][mainCol] === "draw"
@@ -273,7 +273,7 @@ const UltimateTicTacToeGame: React.FC<UltimateTicTacToeGameProps> = ({
                 )}
 
                 {/* Sub 3x3 grid */}
-                <div className="grid grid-cols-3 grid-rows-3 w-full h-full">
+                <div className="grid grid-cols-3 grid-rows-3 w-full h-full gap-1">
                   {Array.from({ length: 3 }, (_, subRow) =>
                     Array.from({ length: 3 }, (_, subCol) => (
                       <div
@@ -300,15 +300,29 @@ const UltimateTicTacToeGame: React.FC<UltimateTicTacToeGameProps> = ({
       </div>
 
       {/* Instructions */}
-      <div className="mt-6 p-4 bg-gray-800/30 rounded-lg max-w-md text-center">
-        <h3 className="text-lg font-semibold text-gray-200 mb-2">
-          How to Play
+      <div className="mt-8 p-6 glass rounded-xl max-w-2xl text-center mx-auto">
+        <h3 className="text-xl font-semibold text-white drop-shadow-glow mb-3">
+          How to Play Ultimate Tic-Tac-Toe
         </h3>
-        <p className="text-gray-300 text-sm">
+        <p className="text-blue-200 text-base leading-relaxed">
           Win three boards in a row to win the game. Your move in a board
           determines which board your opponent must play in next. If sent to a
           completed board, your opponent may play in any available board.
         </p>
+        <div className="mt-4 flex justify-center gap-4 text-sm">
+          <div className="flex items-center">
+            <span className="w-3 h-3 rounded-full bg-green-400 mr-2"></span>
+            <span className="text-green-300">Active Board</span>
+          </div>
+          <div className="flex items-center">
+            <span className="w-3 h-3 rounded-full bg-blue-400 mr-2"></span>
+            <span className="text-blue-300">Player X</span>
+          </div>
+          <div className="flex items-center">
+            <span className="w-3 h-3 rounded-full bg-red-400 mr-2"></span>
+            <span className="text-red-300">Player O</span>
+          </div>
+        </div>
       </div>
     </div>
   );
