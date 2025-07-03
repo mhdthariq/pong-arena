@@ -56,8 +56,8 @@ const HomePageContent = () => {
       accentColor: "blue",
       neonColor: "blue",
       icon: "🏓",
-      singlePlayerPath: "/games/pong/single-player",
-      modernPath: "/games/pong/single-player-modern",
+      classicPath: "/games/pong/classic",
+      modernPath: "/games/pong/modern",
       multiplayerPath: "/games/pong/multi-player/lobby",
     },
     {
@@ -70,7 +70,7 @@ const HomePageContent = () => {
       accentColor: "purple",
       neonColor: "purple",
       icon: "⭕",
-      singlePlayerPath: "/games/tictactoe/single-player",
+      classicPath: "/games/tictactoe/classic",
       modernPath: "/games/tictactoe/ultimate",
       multiplayerPath: "/games/tictactoe/multi-player/lobby",
     },
@@ -79,14 +79,14 @@ const HomePageContent = () => {
   // Game selection handlers
   const selectGame = (
     gameId: string,
-    mode: "single" | "modern" | "multiplayer",
+    mode: "classic" | "modern" | "multiplayer",
   ) => {
     const game = games.find((g) => g.id === gameId);
     if (!game) return;
 
     switch (mode) {
-      case "single":
-        router.push(game.singlePlayerPath);
+      case "classic":
+        router.push(game.classicPath);
         break;
       case "modern":
         router.push(game.modernPath);
@@ -305,10 +305,10 @@ const HomePageContent = () => {
                         onClick={(e: React.MouseEvent) => {
                           e.stopPropagation();
                           e.preventDefault();
-                          selectGame(game.id, "single");
+                          selectGame(game.id, "classic");
                         }}
                       >
-                        🤖 vs AI
+                        {game.id === "pong" ? "🏓 Classic" : "⭕ Classic"}
                       </ModernButton>
                       <ModernButton
                         variant="primary"
@@ -321,7 +321,7 @@ const HomePageContent = () => {
                           selectGame(game.id, "modern");
                         }}
                       >
-                        ⚡ Modern
+                        {game.id === "pong" ? "⚡ Modern" : "🎯 Ultimate"}
                       </ModernButton>
                     </div>
                     <ModernButton
@@ -340,7 +340,9 @@ const HomePageContent = () => {
                         selectGame(game.id, "multiplayer");
                       }}
                     >
-                      🌐 Multiplayer Battle
+                      {game.id === "pong"
+                        ? "🌐 Multiplayer Battle"
+                        : "🌐 Multiplayer"}
                     </ModernButton>
                   </div>
 
@@ -435,7 +437,7 @@ const HomePageContent = () => {
                 </h4>
                 <div className="space-y-3">
                   <Link
-                    href="/games/pong/single-player-modern"
+                    href="/games/pong/modern"
                     className="block text-gray-300 hover:text-blue-400 transition-colors duration-300"
                   >
                     Modern Pong
@@ -447,7 +449,7 @@ const HomePageContent = () => {
                     Pong Multiplayer
                   </Link>
                   <Link
-                    href="/games/tictactoe/single-player"
+                    href="/games/tictactoe/classic"
                     className="block text-gray-300 hover:text-blue-400 transition-colors duration-300"
                   >
                     Tic-Tac-Toe Classic

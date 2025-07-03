@@ -3,12 +3,11 @@
 import React from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import Footer from "../../../../../shared/components/Footer";
 
 // Import Phaser game component with dynamic import to prevent SSR issues
 const PhaserGame = dynamic(
   () =>
-    import("../../../../../games/pong/components/PhaserGame").then(
+    import("../../../../games/pong/components/PhaserGame").then(
       (mod) => mod.default,
     ),
   { ssr: false },
@@ -109,7 +108,6 @@ const ClassicPongPage = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

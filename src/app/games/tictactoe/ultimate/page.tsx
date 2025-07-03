@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { UltimateTicTacToeGame } from "../../../../games/tictactoe";
-import Footer from "../../../../shared/components/Footer";
 import {
   TicTacToePlayer,
   AIPersonality,
@@ -451,8 +450,6 @@ export default function UltimateTicTacToePage() {
           </div>
         )}
       </main>
-
-      <Footer />
     </ModernLayout>
   );
 }
