@@ -1,15 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pong Arena
+
+A multi-game platform featuring classic games like Pong and Tic-Tac-Toe, with both single-player and multiplayer options.
+
+## Features
+
+- **Multiple Games**: Play Pong or Tic-Tac-Toe
+- **Single-Player Mode**: Play against AI with adjustable difficulty
+- **Multiplayer Mode**: Real-time gameplay with other players using Firebase
+- **Modern UI**: Responsive design with TailwindCSS
+- **Built with Next.js**: Fast loading, server-side rendering
+
+## Project Structure
+
+```
+/src
+  /app                  # Next.js App Router pages
+    /games              # Game pages organized by game type
+      /pong             # Pong game routes
+        /single-player  # Single player mode
+        /multi-player   # Multiplayer modes (lobby, game)
+      /tictactoe        # Tic-Tac-Toe game routes
+    /single-player      # Legacy route (redirects to /games/pong/single-player)
+    /multi-player       # Legacy routes (redirect to new structure)
+  /games                # Game-specific logic and components
+    /pong               # Pong game code
+      /components       # Pong-specific React components
+      /phaser           # Phaser.js scenes and config
+      /lib              # Game logic, constants, types
+    /tictactoe          # Tic-Tac-Toe game code
+  /shared               # Shared utilities and components
+    /components         # Shared React components
+    /firebase           # Firebase services
+    /lib                # Shared utilities
+```
+
+> **Note**: Legacy routes in `/app/single-player` and `/app/multi-player` automatically redirect to the new route structure.
 
 ## Getting Started
 
 First, run the development server:
 
 ```bash
+# Install dependencies
+npm install
+# or
+bun install
+
+# Start the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 # or
 bun dev
 ```
