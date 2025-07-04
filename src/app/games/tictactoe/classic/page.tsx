@@ -167,7 +167,7 @@ export default function TicTacToeSinglePlayerPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 lg:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4 lg:gap-6">
                 {(
                   [
                     "balanced",
@@ -176,131 +176,191 @@ export default function TicTacToeSinglePlayerPage() {
                     "random",
                     "strategic",
                     "mimicking",
+                    "learning",
                   ] as AIPersonality[]
                 ).map((personality) => (
-                  <button
-                    key={personality}
-                    onClick={() => changeAiPersonality(personality)}
-                    className={`relative overflow-hidden p-4 rounded-xl text-left transition-all duration-300 group ${
-                      aiPersonality === personality
-                        ? "bg-gradient-to-br from-amber-500 to-orange-600 text-white transform -translate-y-1 shadow-xl"
-                        : "bg-white/10 hover:bg-white/20 text-gray-200 hover:transform hover:-translate-y-0.5"
-                    }`}
-                  >
-                    {/* Ripple effect */}
-                    {aiPersonality === personality && (
-                      <span className="absolute inset-0 bg-white/10 animate-pulse-slow"></span>
-                    )}
+                  <div key={personality} className="relative">
+                    <button
+                      onClick={() => changeAiPersonality(personality)}
+                      className={`w-full relative overflow-hidden p-4 rounded-xl text-left transition-all duration-300 group ${
+                        aiPersonality === personality
+                          ? "bg-gradient-to-br from-amber-500 to-orange-600 text-white transform -translate-y-1 shadow-xl"
+                          : "bg-white/10 hover:bg-white/20 text-gray-200 hover:transform hover:-translate-y-0.5"
+                      }`}
+                    >
+                      {/* Ripple effect */}
+                      {aiPersonality === personality && (
+                        <span className="absolute inset-0 bg-white/10 animate-pulse-slow"></span>
+                      )}
 
-                    {/* Icon based on personality */}
-                    <div className="mb-3 relative z-10">
-                      {personality === "balanced" && (
-                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                      {personality === "aggressive" && (
-                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                      {personality === "defensive" && (
-                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                      {personality === "random" && (
-                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                      {personality === "strategic" && (
-                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </div>
-                      )}
-                      {personality === "mimicking" && (
-                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
+                      {/* Icon based on personality */}
+                      <div className="mb-3 relative z-10">
+                        {personality === "balanced" && (
+                          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                            <svg
+                              className="w-4 h-4"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        )}
+                        {personality === "aggressive" && (
+                          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                            <svg
+                              className="w-4 h-4"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        )}
+                        {personality === "defensive" && (
+                          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                            <svg
+                              className="w-4 h-4"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        )}
+                        {personality === "random" && (
+                          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                            <svg
+                              className="w-4 h-4"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        )}
+                        {personality === "strategic" && (
+                          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                            <svg
+                              className="w-4 h-4"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                        )}
+                        {personality === "mimicking" && (
+                          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                            <svg
+                              className="w-4 h-4"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        )}
+                        {personality === "learning" && (
+                          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                            <svg
+                              className="w-4 h-4"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
 
-                    <span className="font-semibold capitalize relative z-10 text-lg">
-                      {personality.charAt(0).toUpperCase() +
-                        personality.slice(1)}
-                    </span>
+                      <div className="flex items-start justify-between relative z-10">
+                        <div className="flex-1">
+                          <span className="font-semibold capitalize text-lg">
+                            {personality.charAt(0).toUpperCase() +
+                              personality.slice(1)}
+                          </span>
 
-                    <span className="block text-xs mt-2 opacity-90 relative z-10 leading-relaxed">
-                      {personality === "balanced"
-                        ? "Balances offense and defense strategies"
-                        : personality === "aggressive"
-                          ? "Focuses on creating winning opportunities"
-                          : personality === "defensive"
-                            ? "Prioritizes blocking your moves"
-                            : personality === "random"
-                              ? "Makes completely unpredictable moves"
-                              : personality === "strategic"
-                                ? "Plans several moves ahead"
-                                : "Adapts to mimic your playing style"}
-                    </span>
-                  </button>
+                          <span className="block text-xs mt-2 opacity-90 leading-relaxed">
+                            {personality === "balanced"
+                              ? "Even mix of offense and defense"
+                              : personality === "aggressive"
+                                ? "Prioritizes creating winning moves"
+                                : personality === "defensive"
+                                  ? "Focuses on blocking your moves"
+                                  : personality === "random"
+                                    ? "Completely unpredictable moves"
+                                    : personality === "strategic"
+                                      ? "Plans multiple moves ahead"
+                                      : personality === "mimicking"
+                                        ? "Adapts to copy your playing style"
+                                        : "Gets smarter as the game progresses"}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Info button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const descriptions = {
+                          balanced:
+                            "This AI maintains a perfect balance between offensive and defensive strategies. It will block your winning moves while also looking for its own opportunities. Good for players who want a fair, competitive game.",
+                          aggressive:
+                            "This AI prioritizes creating multiple threats and winning opportunities. It focuses on offensive moves and may occasionally miss blocking your moves in favor of creating its own winning chances. Great for players who want a challenging, fast-paced game.",
+                          defensive:
+                            "This AI's primary goal is to block all your moves and prevent you from winning. It plays very defensively and will rarely miss a blocking opportunity. Perfect for players who want to practice finding creative winning paths.",
+                          random:
+                            "This AI makes completely unpredictable moves with no strategy. Every move is random, making it impossible to predict what it will do next. Ideal for casual, fun games or when you want to practice against unpredictable opponents.",
+                          strategic:
+                            "This AI thinks several moves ahead and uses advanced algorithms to plan the best possible moves. It analyzes multiple future scenarios and chooses moves that lead to the best long-term position. Best for experienced players who want the ultimate challenge.",
+                          mimicking:
+                            "This AI analyzes your playing style and tries to copy your strategies. It places moves near your recent moves and adapts its behavior based on your patterns. Creates a unique experience that evolves as you play.",
+                          learning:
+                            "This AI starts easy but gets progressively smarter as the game progresses. It begins with simple moves but gradually adopts more advanced strategies. The longer the game goes on, the more challenging it becomes.",
+                        };
+                        alert(
+                          descriptions[
+                            personality as keyof typeof descriptions
+                          ],
+                        );
+                      }}
+                      className="absolute top-2 right-2 w-6 h-6 rounded-full bg-blue-500/30 hover:bg-blue-500/50 flex items-center justify-center transition-colors z-20"
+                    >
+                      <svg
+                        className="w-3 h-3 text-blue-200"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 ))}
               </div>
             </GlassmorphicCard>

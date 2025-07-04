@@ -138,19 +138,24 @@ const TicTacToeSettings: React.FC<TicTacToeSettingsProps> = ({
               >
                 Win Length
               </label>
-              <GlassmorphicCard
-                padding="none"
-                className="relative"
-                blur="sm"
-                rounded="lg"
-              >
+              <div className="relative">
                 <select
                   id="winLength"
                   value={settings.winLength}
                   onChange={(e) =>
                     updateSettings("winLength", parseInt(e.target.value))
                   }
-                  className="w-full px-4 py-3 bg-transparent text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-none border-0 appearance-none pr-10"
+                  className="w-full px-4 py-3 bg-black/40 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/20 appearance-none pr-10 backdrop-blur-sm"
+                  style={{
+                    backgroundColor: "rgba(0, 0, 0, 0.4)",
+                    color: "white",
+                    WebkitAppearance: "none",
+                    MozAppearance: "none",
+                    appearance: "none",
+                    backgroundImage: "none",
+                    textShadow: "none",
+                    fontFamily: "inherit",
+                  }}
                 >
                   {Array.from(
                     { length: settings.boardSize },
@@ -160,9 +165,12 @@ const TicTacToeSettings: React.FC<TicTacToeSettingsProps> = ({
                       key={len}
                       value={len}
                       disabled={len > settings.boardSize}
-                      className={
-                        len > settings.boardSize ? "text-gray-500" : ""
-                      }
+                      className="bg-gray-800 text-white"
+                      style={{
+                        backgroundColor: "#1f2937",
+                        color: "white",
+                        fontFamily: "inherit",
+                      }}
                     >
                       {len} in a row
                     </option>
@@ -182,7 +190,7 @@ const TicTacToeSettings: React.FC<TicTacToeSettingsProps> = ({
                     />
                   </svg>
                 </div>
-              </GlassmorphicCard>
+              </div>
             </div>
           </GlassmorphicCard>
 
@@ -219,53 +227,76 @@ const TicTacToeSettings: React.FC<TicTacToeSettingsProps> = ({
                 Game Mode
               </label>
               <div className="space-y-2">
-                {(["classic", "misere", "ultimate"] as GameMode[]).map(
-                  (mode) => (
-                    <div
-                      key={mode}
-                      className={`transition-all duration-300 cursor-pointer rounded-lg p-3 ${
-                        settings.gameMode === mode
-                          ? "bg-white/20 border border-white/20 transform -translate-y-0.5"
-                          : "bg-white/10 hover:bg-white/15"
-                      }`}
-                      onClick={() => updateSettings("gameMode", mode)}
-                    >
-                      <div className="flex items-center">
-                        <div
-                          className={`w-3 h-3 rounded-full mr-3 flex-shrink-0 ${
-                            settings.gameMode === mode
-                              ? "bg-purple-500 ring-2 ring-purple-300 ring-opacity-50"
-                              : "border-2 border-white/30"
-                          }`}
-                        ></div>
-                        <div className="flex-1">
-                          <span
-                            className={`font-medium capitalize ${
-                              settings.gameMode === mode
-                                ? "text-white"
-                                : "text-blue-200"
-                            }`}
+                {(["classic", "misere"] as GameMode[]).map((mode) => (
+                  <div
+                    key={mode}
+                    className={`transition-all duration-300 cursor-pointer rounded-lg p-3 ${
+                      settings.gameMode === mode
+                        ? "bg-white/20 border border-white/20 transform -translate-y-0.5"
+                        : "bg-white/10 hover:bg-white/15"
+                    }`}
+                    onClick={() => updateSettings("gameMode", mode)}
+                  >
+                    <div className="flex items-center">
+                      <div
+                        className={`w-3 h-3 rounded-full mr-3 flex-shrink-0 ${
+                          settings.gameMode === mode
+                            ? "bg-purple-500 ring-2 ring-purple-300 ring-opacity-50"
+                            : "border-2 border-white/30"
+                        }`}
+                      ></div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span
+                              className={`font-medium capitalize ${
+                                settings.gameMode === mode
+                                  ? "text-white"
+                                  : "text-blue-200"
+                              }`}
+                            >
+                              {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                            </span>
+                            <p
+                              className={`text-xs mt-1 ${
+                                settings.gameMode === mode
+                                  ? "text-blue-100"
+                                  : "text-blue-200/70"
+                              }`}
+                            >
+                              {mode === "classic"
+                                ? "Standard tic-tac-toe rules"
+                                : "Reverse rules - avoid getting three in a row"}
+                            </p>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              alert(
+                                mode === "classic"
+                                  ? "Classic Mode: Get the required number in a row to win. Standard tic-tac-toe rules apply."
+                                  : "Misère Mode: The goal is reversed - avoid getting three in a row! The first player to get the required number in a row loses.",
+                              );
+                            }}
+                            className="ml-2 w-5 h-5 rounded-full bg-blue-500/20 hover:bg-blue-500/40 flex items-center justify-center transition-colors"
                           >
-                            {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                          </span>
-                          <p
-                            className={`text-xs mt-1 ${
-                              settings.gameMode === mode
-                                ? "text-blue-100"
-                                : "text-blue-200/70"
-                            }`}
-                          >
-                            {mode === "classic"
-                              ? "Standard rules"
-                              : mode === "misere"
-                                ? "Reverse rules"
-                                : "9 boards mode"}
-                          </p>
+                            <svg
+                              className="w-3 h-3 text-blue-300"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
                         </div>
                       </div>
                     </div>
-                  ),
-                )}
+                  </div>
+                ))}
               </div>
             </div>
 

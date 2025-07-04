@@ -799,17 +799,69 @@ export function getAIMove(
     throw new Error("No available moves");
   }
 
-  // Random AI (easiest difficulty or random personality)
-  if (difficulty === "easy" || personality === "random") {
-    // Completely random moves 80% of the time for easy difficulty
-    if (Math.random() < 0.8 || personality === "random") {
-      return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+  const humanPlayer = aiPlayer === "X" ? "O" : "X";
+
+  // Personality-based behavior overrides
+  if (personality === "random") {
+    return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+  }
+
+  if (personality === "mimicking") {
+    // Try to mimic human player's style by placing near their moves
+    const humanMoves = gameState.moveHistory
+      .filter((move) => move.player === humanPlayer)
+      .slice(-2); // Look at last 2 human moves
+
+    if (humanMoves.length > 0) {
+      const lastHumanMove = humanMoves[humanMoves.length - 1];
+      const adjacentMoves = availableMoves.filter((move) => {
+        const rowDiff = Math.abs(move.row - lastHumanMove.row);
+        const colDiff = Math.abs(move.col - lastHumanMove.col);
+        return rowDiff <= 1 && colDiff <= 1 && rowDiff + colDiff > 0;
+      });
+
+      if (adjacentMoves.length > 0 && Math.random() < 0.7) {
+        return adjacentMoves[Math.floor(Math.random() * adjacentMoves.length)];
+      }
     }
   }
 
-  const humanPlayer = aiPlayer === "X" ? "O" : "X";
+  // Learning personality - gets harder with more moves
+  if (personality === "learning") {
+    const gameProgress =
+      gameState.moveHistory.length /
+      (gameState.settings.boardSize * gameState.settings.boardSize);
+    const dynamicDifficulty =
+      gameProgress > 0.3
+        ? "hard"
+        : gameProgress > 0.6
+          ? "impossible"
+          : difficulty;
+    difficulty = dynamicDifficulty as AIDifficulty;
+  }
 
-  // Check for winning move
+  // Strategic personality - always looks ahead
+  if (personality === "strategic") {
+    if (gameState.settings.boardSize === 3) {
+      const boardCopy = JSON.parse(JSON.stringify(gameState.board));
+      const result = minimax(
+        boardCopy,
+        0,
+        true,
+        -Infinity,
+        Infinity,
+        aiPlayer,
+        humanPlayer,
+        gameState.settings.winLength,
+        gameState.settings.gameMode,
+      );
+      if (result.move) {
+        return result.move;
+      }
+    }
+  }
+
+  // Check for winning move (all personalities except random)
   for (const move of availableMoves) {
     const { row, col } = move;
     const boardCopy = JSON.parse(JSON.stringify(gameState.board));
@@ -826,8 +878,11 @@ export function getAIMove(
     }
   }
 
-  // Block player's winning move (for medium difficulty and above)
-  if (difficulty !== "easy") {
+  // Block player's winning move (except for easy difficulty and aggressive personality when prioritizing offense)
+  if (
+    difficulty !== "easy" &&
+    !(personality === "aggressive" && Math.random() < 0.3)
+  ) {
     for (const move of availableMoves) {
       const { row, col } = move;
       const boardCopy = JSON.parse(JSON.stringify(gameState.board));
@@ -840,9 +895,80 @@ export function getAIMove(
       );
 
       if (winResult.winner === humanPlayer) {
-        return move; // Block player's winning move
+        // Defensive personality always blocks, others have some chance to miss
+        if (personality === "defensive" || Math.random() < 0.8) {
+          return move; // Block player's winning move
+        }
       }
     }
+  }
+
+  // Personality-specific move selection
+  if (personality === "aggressive") {
+    // Prioritize offensive moves that create multiple threats
+    const boardCopy = JSON.parse(JSON.stringify(gameState.board));
+    const moveValues = availableMoves.map((move) => {
+      boardCopy[move.row][move.col] = aiPlayer;
+      let value = evaluateBoard(
+        boardCopy,
+        aiPlayer,
+        humanPlayer,
+        gameState.settings.winLength,
+      );
+
+      // Bonus for creating multiple threat lines
+      let threatCount = 0;
+      for (let i = 0; i < gameState.settings.boardSize; i++) {
+        for (let j = 0; j < gameState.settings.boardSize; j++) {
+          if (boardCopy[i][j] === aiPlayer) {
+            threatCount += countPotentialLines(
+              boardCopy,
+              i,
+              j,
+              aiPlayer,
+              gameState.settings.winLength,
+            );
+          }
+        }
+      }
+      value += threatCount * 10;
+
+      boardCopy[move.row][move.col] = null;
+      return { move, value };
+    });
+
+    moveValues.sort((a, b) => b.value - a.value);
+    return moveValues[0].move;
+  }
+
+  if (personality === "defensive") {
+    // Prioritize blocking and safe moves
+    const boardCopy = JSON.parse(JSON.stringify(gameState.board));
+    const moveValues = availableMoves.map((move) => {
+      boardCopy[move.row][move.col] = humanPlayer;
+      let value = -evaluateBoard(
+        boardCopy,
+        humanPlayer,
+        aiPlayer,
+        gameState.settings.winLength,
+      );
+
+      // Bonus for moves that don't give opponent opportunities
+      boardCopy[move.row][move.col] = aiPlayer;
+      const aiValue = evaluateBoard(
+        boardCopy,
+        aiPlayer,
+        humanPlayer,
+        gameState.settings.winLength,
+      );
+      value += aiValue * 0.3; // Small bonus for our own position
+
+      boardCopy[move.row][move.col] = null;
+      return { move, value };
+    });
+
+    moveValues.sort((a, b) => b.value - a.value);
+    return moveValues[0].move;
   }
 
   // For hard difficulty and above, use more advanced strategies
@@ -879,7 +1005,7 @@ export function getAIMove(
     return { row: recommendation.row, col: recommendation.col };
   }
 
-  // For medium difficulty, use strategic positions when available
+  // For medium difficulty and balanced personality, use strategic positions
   const size = gameState.settings.boardSize;
   const center = Math.floor(size / 2);
 
@@ -887,7 +1013,7 @@ export function getAIMove(
   const centerMove = availableMoves.find(
     (move) => move.row === center && move.col === center,
   );
-  if (centerMove) {
+  if (centerMove && Math.random() < 0.7) {
     return centerMove;
   }
 
@@ -898,57 +1024,85 @@ export function getAIMove(
       (move.col === 0 || move.col === size - 1),
   );
 
-  if (cornerMoves.length > 0 && Math.random() < 0.7) {
+  if (cornerMoves.length > 0 && Math.random() < 0.6) {
     return cornerMoves[Math.floor(Math.random() * cornerMoves.length)];
   }
 
-  // Default: pick a random move with some smart weighting based on personality
-  if (personality === "aggressive") {
-    // Prioritize moves that create threats
-    const boardCopy = JSON.parse(JSON.stringify(gameState.board));
-    const moveValues = availableMoves.map((move) => {
-      boardCopy[move.row][move.col] = aiPlayer;
-      const value = evaluateBoard(
-        boardCopy,
-        aiPlayer,
-        humanPlayer,
-        gameState.settings.winLength,
-      );
-      boardCopy[move.row][move.col] = null;
-      return { move, value };
-    });
+  // Easy difficulty or fallback: pick a random move
+  return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+}
 
-    moveValues.sort((a, b) => b.value - a.value);
+// Helper function to count potential winning lines from a position
+function countPotentialLines(
+  board: TicTacToeBoard,
+  row: number,
+  col: number,
+  player: TicTacToePlayer,
+  winLength: number,
+): number {
+  const size = board.length;
+  let count = 0;
 
-    // Return top move 80% of the time, otherwise random
-    if (Math.random() < 0.8) {
-      return moveValues[0].move;
+  // Check all 8 directions
+  const directions = [
+    [-1, -1],
+    [-1, 0],
+    [-1, 1],
+    [0, -1],
+    [0, 1],
+    [1, -1],
+    [1, 0],
+    [1, 1],
+  ];
+
+  for (const [dr, dc] of directions) {
+    let lineLength = 1; // Count the current piece
+    let hasSpace = false;
+
+    // Check in positive direction
+    for (let i = 1; i < winLength; i++) {
+      const newRow = row + dr * i;
+      const newCol = col + dc * i;
+
+      if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
+        if (board[newRow][newCol] === player) {
+          lineLength++;
+        } else if (board[newRow][newCol] === null) {
+          hasSpace = true;
+          break;
+        } else {
+          break; // Blocked by opponent
+        }
+      } else {
+        break; // Out of bounds
+      }
     }
-  } else if (personality === "defensive") {
-    // Prioritize moves that block threats
-    const boardCopy = JSON.parse(JSON.stringify(gameState.board));
-    const moveValues = availableMoves.map((move) => {
-      boardCopy[move.row][move.col] = humanPlayer;
-      const value = -evaluateBoard(
-        boardCopy,
-        humanPlayer,
-        aiPlayer,
-        gameState.settings.winLength,
-      );
-      boardCopy[move.row][move.col] = null;
-      return { move, value };
-    });
 
-    moveValues.sort((a, b) => b.value - a.value);
+    // Check in negative direction
+    for (let i = 1; i < winLength; i++) {
+      const newRow = row - dr * i;
+      const newCol = col - dc * i;
 
-    // Return top move 80% of the time, otherwise random
-    if (Math.random() < 0.8) {
-      return moveValues[0].move;
+      if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
+        if (board[newRow][newCol] === player) {
+          lineLength++;
+        } else if (board[newRow][newCol] === null) {
+          hasSpace = true;
+          break;
+        } else {
+          break; // Blocked by opponent
+        }
+      } else {
+        break; // Out of bounds
+      }
+    }
+
+    if (lineLength >= 2 && hasSpace) {
+      count++;
     }
   }
 
-  // Default: pick a random move
-  return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+  return count;
 }
 
 // Handle "Ultimate Tic-Tac-Toe" mode functionality
