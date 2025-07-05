@@ -1,74 +1,42 @@
-# Pong Arena
+# GameArena
 
-A multi-game platform featuring classic games like Pong and Tic-Tac-Toe, with both single-player and multiplayer options.
+## A Single-Player Gaming Experience Redefined
+
+GameArena is a modern, multi-game platform that reimagines classic arcade games like Pong and Tic-Tac-Toe. It offers an immersive single-player experience where you can challenge an intelligent and customizable AI.
 
 ## Features
 
-- **Multiple Games**: Play Pong or Tic-Tac-Toe
-- **Single-Player Mode**: Play against AI with adjustable difficulty
-- **Multiplayer Mode**: Real-time gameplay with other players using Firebase
-- **Modern UI**: Responsive design with TailwindCSS
-- **Built with Next.js**: Fast loading, server-side rendering
+### Pong Arena
+
+- **Classic Mode**: Experience the nostalgia of the original Pong game, powered by the Phaser game engine.
+- **Modern Mode**: Enjoy a visually enhanced version with dynamic power-ups, advanced physics, and particle effects.
+- **Customizable Experience**: Tailor your gameplay with over 40 settings, including visual themes and adjustable AI difficulty.
+
+### Tic-Tac-Toe Reimagined
+
+- **Game Modes**: Play "Classic," "Misère," or the strategic "Ultimate" Tic-Tac-Toe.
+- **Configurable Boards**: Adjust board sizes and win lengths for a personalized gameplay experience.
+- **Strategic AI**: Face an AI with multiple personalities ("balanced", "aggressive", "defensive") that uses the minimax algorithm with alpha-beta pruning for optimal play.
+- **Features**: Timed moves, a full move history, and a hint system with move recommendations.
 
 ## Project Structure
 
-```
-/src
-  /app                  # Next.js App Router pages
-    /games              # Game pages organized by game type
-      /pong             # Pong game routes
-        /single-player  # Single player mode
-        /multi-player   # Multiplayer modes (lobby, game)
-      /tictactoe        # Tic-Tac-Toe game routes
-    /single-player      # Legacy route (redirects to /games/pong/single-player)
-    /multi-player       # Legacy routes (redirect to new structure)
-  /games                # Game-specific logic and components
-    /pong               # Pong game code
-      /components       # Pong-specific React components
-      /phaser           # Phaser.js scenes and config
-      /lib              # Game logic, constants, types
-    /tictactoe          # Tic-Tac-Toe game code
-  /shared               # Shared utilities and components
-    /components         # Shared React components
-    /firebase           # Firebase services
-    /lib                # Shared utilities
-```
-
-> **Note**: Legacy routes in `/app/single-player` and `/app/multi-player` automatically redirect to the new route structure.
+- **/src/app**: Contains all Next.js App Router pages for game routes (e.g., /games/pong/classic).
+- **/src/games**: Contains all core game logic, React components, and assets, separated by game (pong, tictactoe).
+- **/src/shared**: Contains reusable components (like ModernLayout, GlassmorphicCard).
 
 ## Getting Started
 
-First, run the development server:
+To install dependencies: `npm install`
 
-```bash
-# Install dependencies
-npm install
-# or
-bun install
+To run the development server: `npm run dev`
 
-# Start the development server
-npm run dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The application will be available at `http://localhost:3000`.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [Next.js Documentation](https://nextjs.org/docs)
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+GameArena is built with Next.js, which seamlessly integrates with Vercel for deployment. To deploy your application, follow the [Vercel documentation](https://vercel.com/docs).
