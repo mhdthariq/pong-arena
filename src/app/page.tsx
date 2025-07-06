@@ -379,7 +379,7 @@ const HomePageContent = () => {
                 </p>
                 <div className="flex justify-center lg:justify-start space-x-4">
                   <a
-                    href="mailto:muhammad.thariq@example.com"
+                    href="mailto:mthariqaryaputra1@gmail.com"
                     className="p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors duration-300 group"
                     title="Email"
                   >
@@ -398,7 +398,7 @@ const HomePageContent = () => {
                     </svg>
                   </a>
                   <a
-                    href="https://github.com/muhammad-thariq"
+                    href="https://github.com/mhdthariq"
                     className="p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors duration-300 group"
                     title="GitHub"
                   >
@@ -415,7 +415,7 @@ const HomePageContent = () => {
                     </svg>
                   </a>
                   <a
-                    href="https://linkedin.com/in/muhammad-thariq"
+                    href="www.linkedin.com/in/muhammad-thariq-arya-putra-sembiring"
                     className="p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors duration-300 group"
                     title="LinkedIn"
                   >
